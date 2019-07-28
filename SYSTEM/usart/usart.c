@@ -1,5 +1,4 @@
 #include "sys.h"
-#include "ano_y.h"
 #include "usart.h"	  
 ////////////////////////////////////////////////////////////////////////////////// 	 
 //如果使用ucos,则包括下面的头文件即可.
@@ -122,7 +121,7 @@ void uart_init(u32 bound){
 
 void usart1_send_char(u8 c)
 {   	
-	while(USART_GetFlagStatus(USART1,USART_FLAG_TC)==RESET);//循环发送,直到发送完毕   
+	while(USART_GetFlagStatus(USART1,USART_FLAG_TC)==RESET){};//循环发送,直到发送完毕   
 	      USART_SendData(USART1,c);  
 } 
 
@@ -174,7 +173,7 @@ void USART1_IRQHandler(void)                	//串口1中断服务程序
 		{
 			RxState = 0;
 			RxBuffer[4+_data_cnt]=com_data;
-			Data_Receive_Anl(RxBuffer,_data_cnt+5);//调用数据解析函数
+			Data_Receive(RxBuffer,_data_cnt+5);//调用数据解析函数
 		}
 		else 
 			RxState = 0;
@@ -183,6 +182,7 @@ void USART1_IRQHandler(void)                	//串口1中断服务程序
 
 	USART_ClearITPendingBit(USART1,USART_IT_ORE);
 }
+void Data_Receive(u8 RxBuffer[],u8 _data_cnt){};
 #if SYSTEM_SUPPORT_OS 	//如果SYSTEM_SUPPORT_OS为真，则需要支持OS.
 	OSIntExit();  											 
 #endif

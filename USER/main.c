@@ -1,11 +1,9 @@
 #include "led.h"
 #include "delay.h"
 #include "sys.h"
-#include "usart.h"
 #include "remote.h"  
 #include "pwm.h" 
 #include "timer.h" 
-#include "stm32f10x_rcc.h" 
 
  int main(void)
  { 

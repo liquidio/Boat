@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>Target 1</TargetName>
+      <TargetName>boat</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
@@ -332,7 +332,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\HARDWARE\LED;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE;..\HARDWARE\LCD;..\HARDWARE\REMOTE;..\HARDWARE\PWM;..\HARDWARE\TIMER;..\HARDWARE\PID;..\HARDWARE\ANO_Y</IncludePath>
+              <IncludePath>..\HARDWARE\inc;..\SYSTEM\delay;..\SYSTEM\sys;..\SYSTEM\usart;..\USER;..\STM32F10x_FWLib\inc;..\CORE</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -398,37 +398,27 @@
             <File>
               <FileName>led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\HARDWARE\LED\led.c</FilePath>
-            </File>
-            <File>
-              <FileName>lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\LCD\lcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>remote.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\REMOTE\remote.c</FilePath>
-            </File>
-            <File>
-              <FileName>pwm.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\PWM\pwm.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\HARDWARE\TIMER\timer.c</FilePath>
+              <FilePath>..\HARDWARE\src\led.c</FilePath>
             </File>
             <File>
               <FileName>pid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\HARDWARE\PID\pid.c</FilePath>
+              <FilePath>..\HARDWARE\src\pid.c</FilePath>
             </File>
             <File>
-              <FileName>ano_y.c</FileName>
+              <FileName>pwm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\HARDWARE\ANO_Y\ano_y.c</FilePath>
+              <FilePath>..\HARDWARE\src\pwm.c</FilePath>
+            </File>
+            <File>
+              <FileName>remote.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\src\remote.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\src\timer.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -499,16 +489,6 @@
               <FileName>stm32f10x_pwr.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\STM32F10x_FWLib\src\stm32f10x_pwr.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>README</GroupName>
-          <Files>
-            <File>
-              <FileName>README.TXT</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\README.TXT</FilePath>
             </File>
           </Files>
         </Group>

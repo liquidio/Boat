@@ -27,12 +27,14 @@
 ////////////////////////////////////////////////////////////////////////////////// 	
 #define USART_REC_LEN  			25  	//定义最大接收字节数 200
 #define EN_USART1_RX 			1		//使能（1）/禁止（0）串口1接收
-	  	
+
+void Data_Receive(u8[],u8);
 extern u8  USART_RX_BUF[USART_REC_LEN]; //接收缓冲,最大USART_REC_LEN个字节.末字节为换行符 
 extern u16 USART_RX_STA;         		//接收状态标记	
 //如果想串口中断接收，请不要注释以下宏定义
 void uart_init(u32 bound);
 void usart1_send_char(u8 c);  //发送数据给上位机
+void Data_Receive(u8[],u8);
 #endif
 
 
