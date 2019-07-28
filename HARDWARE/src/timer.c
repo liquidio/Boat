@@ -3,10 +3,27 @@
 #include "pid.h"
 #include "remote.h"
 #include "delay.h"
-#include <math.h>
-#define HUANG
-#ifdef HUANG
+
+//#define HUANG//定义使用哪艘船的参数
+
+#ifdef HUANG //黄船
 #define MID 118
+#endif
+
+#ifdef BAI //白船
+
+#endif
+#ifdef HONG //红船
+
+#endif
+
+#ifdef PO //破军
+
+#endif
+#ifdef HAI //海鹰
+
+#endif
+#ifdef WU //无名
 
 #endif
 
@@ -106,7 +123,8 @@ void TIM4_IRQHandler(void)   //TIM3中断
 }
 
 void control(void){
-
+	
+	#ifdef HUANG //黄船
 			if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){TIM_SetCompare1(TIM1,118);}
 			else if(hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6){TIM_SetCompare1(TIM1,118);}
 			else if(hw_cc2&&hw_cc3&&hw_cc5&&hw_cc6&&!hw_cc4){
@@ -145,5 +163,7 @@ void control(void){
 		if(hw_cc5&&hw_cc6&&hw_cc7)TIM_SetCompare1(TIM1,98);}
 			
 	hw_cc1=0;hw_cc2=0;hw_cc3=0;hw_cc4=0;hw_cc5=0;hw_cc6=0;hw_cc7=0;hw_cc8=0;hw_cc9=0;
+
+#endif
 }
 
