@@ -13,9 +13,9 @@
 	LED_Init();		  		//≥ı ºªØ”ÎLED¡¨Ω”µƒ”≤º˛Ω”ø⁄
 	//PID_Init();
   TIM1_PWM_Init(1439,999);
-	 TIM_SetCompare1(TIM1,118);
+	 TIM_SetCompare1(TIM1,36);
 	 Remote_Init();			//∫ÏÕ‚Ω” ’≥ı ºª
-	TIM4_Int_Init(1439,999);	
+	TIM4_Int_Init(2000,720-1);	
 	while(1)
 	{
 	}

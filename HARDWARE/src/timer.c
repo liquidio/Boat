@@ -3,18 +3,18 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
-//#define HUANG//¶¨ÒåÊ¹ÓÃÄÄËÒ´¬µÄ²ÎÊý
-#define DEBUG
+#define HUANG//¶¨ÒåÊ¹ÓÃÄÄËÒ´¬µÄ²ÎÊý
+//#define DEBUG
 #ifdef DEBUG
 u8 blue;
 u8 pwm=118;//ÖÐ¼äÖµpwm
-u8 l1,
-	l2,
-	l3,
-	r1,
-	r2,
-	r3;
-u8 k1,k2,k3,k4;
+u8 l1=100,
+	l2=100,
+	l3=100,
+	r1=100,
+	r2=100=100,
+	r3=100;
+u8 k1=1,k2=1,k3=1,k4=1;
 #endif
 
 #ifdef HUANG //»Æ´¬
@@ -79,23 +79,16 @@ u8 l1,
 	r3;
 u8 k1,k2,k3,k4;//·Ö¶ÎµÄ±ÈÀýÏµÊý
 #endif
-int par,k;//Æ«²îºÍ±ÈÀýÏµÊý
+int par,k;//Æ«²îºÍ±ÈÀýÏµÊ
+u8 blue;
 
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
     TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	TIM_ICInitTypeDef  TIM_ICInitStructure;  
 	NVIC_InitTypeDef NVIC_InitStructure;
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE); //Ê±ÖÓÊ¹ÄÜ
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE); //Ê¹ÄÜPORTBÊ±ÖÓ 
 	
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
- 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; 		//ÉÏÀ­ÊäÈë 
- 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
- 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_SetBits(GPIOB,GPIO_Pin_6);
 	
 	TIM_TimeBaseStructure.TIM_Period = arr; //ÉèÖÃÔÚÏÂÒ»¸ö¸üÐÂÊÂ¼þ×°Èë»î¶¯µÄ×Ô¶¯ÖØ×°ÔØ¼Ä´æÆ÷ÖÜÆÚµÄÖµ	 ¼ÆÊýµ½5000Îª500ms
 	TIM_TimeBaseStructure.TIM_Prescaler =psc; //ÉèÖÃÓÃÀ´×÷ÎªTIMxÊ±ÖÓÆµÂÊ³ýÊýµÄÔ¤·ÖÆµÖµ  10KhzµÄ¼ÆÊýÆµÂÊ  
@@ -103,16 +96,10 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIMÏòÉÏ¼ÆÊýÄ£Ê½
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //¸ù¾ÝTIM_TimeBaseInitStructÖÐÖ¸¶¨µÄ²ÎÊý³õÊ¼»¯TIMxµÄÊ±¼ä»ùÊýµ¥Î»
  
-		TIM_ICInitStructure.TIM_Channel = TIM_Channel_2;  // Ñ¡ÔñÊäÈë¶Ë IC2Ó³Éäµ½TI5ÉÏ
-  TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Rising;	//ÉÏÉýÑØ²¶»ñ
-  TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
-  TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;	 //ÅäÖÃÊäÈë·ÖÆµ,²»·ÖÆµ 
-  TIM_ICInitStructure.TIM_ICFilter = 0x03;//IC4F=0011 ÅäÖÃÊäÈëÂË²¨Æ÷ 8¸ö¶¨Ê±Æ÷Ê±ÖÓÖÜÆÚÂË²¨
-  TIM_ICInit(TIM4, &TIM_ICInitStructure);//³õÊ¼»¯¶¨Ê±Æ÷ÊäÈë²¶»ñÍ¨µÀ
 	
 	TIM_ITConfig(  //Ê¹ÄÜ»òÕßÊ§ÄÜÖ¸¶¨µÄTIMÖÐ¶Ï
 		TIM4, //TIM4
-		TIM_IT_Update|TIM_IT_CC2 ,
+		TIM_IT_Update,
 		ENABLE  //Ê¹ÄÜ
 		);
 	NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;  //TIM4ÖÐ¶Ï
@@ -130,43 +117,8 @@ void TIM4_IRQHandler(void)   //TIM3ÖÐ¶Ï
 	
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) //¼ì²éÖ¸¶¨µÄTIMÖÐ¶Ï·¢ÉúÓë·ñ:TIM ÖÐ¶ÏÔ´ 
 		{
-			cc9_more++;
 			control();
-	
 	TIM_ClearFlag(TIM4, TIM_IT_Update  );  //Çå³ýTIMxµÄÖÐ¶Ï´ý´¦ÀíÎ»:TIM ÖÐ¶ÏÔ´
-	}
-
-	if(TIM_GetITStatus(TIM4,TIM_IT_CC2)!=RESET)
-	{	  
-		if(RDATB8)//ÉÏÉýÑØ²¶»ñ
-		{
-			TIM_OC1PolarityConfig(TIM4,TIM_ICPolarity_Falling);		//CC1P=1 ÉèÖÃÎªÏÂ½µÑØ²¶»ñ				
-	    cc9_more=0;
-			Dval_in8=TIM_GetCapture1(TIM4);	
-
-		}else //ÏÂ½µÑØ²¶»ñ
-		{			
-  		 Dval8=cc9_more*10000+TIM_GetCapture1(TIM4)-Dval_in8;//¶ÁÈ¡CCR1Ò²¿ÉÒÔÇåCC1IF±êÖ¾Î»
-			 TIM_OC1PolarityConfig(TIM4,TIM_ICPolarity_Rising); //CC4P=0	ÉèÖÃÎªÉÏÉýÑØ²¶»ñ
-
-				if(Dval8>300&&Dval8<800)		//560Îª±ê×¼Öµ
-				{
-					hw_cc9=1;
-				}			else			 
-				if(Dval8>1400&&Dval8<1800)		//Îª±ê×¼Öµ
-				{
-					hw_cc9=1;
-				}				else		 
- 				if(Dval8>4200&&Dval8<4700)		//4500Îª±ê×¼Öµ4.5ms
-				{
-					hw_cc9=1;
-				}		else
-				if(Dval8>2000&&Dval8<2600)		//4500Îª±ê×¼Öµ4.5ms
-				{
-					hw_cc9=1;
-				}		else	{hw_cc9=0;}			 
-		}	
-		TIM_ClearFlag(TIM4,TIM_IT_CC2);
 	}
 }
 
@@ -175,7 +127,8 @@ void control(void){
 			if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
 			else if((hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6)&&!hw_cc4){
 				par=l2;//Ñ¡ÔñÃÅ
-			}else if(hw_cc4&&(hw_cc5||hw_cc6||hw__cc7){
+			}else if(hw_cc4&&(hw_cc5||hw_cc6||hw_cc7)){
+				par =pwm;
 			}else
 			{
 		if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
@@ -209,6 +162,13 @@ void control(void){
 		if(hw_cc7)par=r3;
 		if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
 			}
+		hw_cc1=0;
+		hw_cc2=0;
+		hw_cc3=0;
+			hw_cc4=0;
+			hw_cc5=0;
+			hw_cc6=0;
+			hw_cc7=0;
 #endif
 /*È·¶¨ÄÄÒ»¶ÎµÄ±ÈÀýÏµÊý*/
 #ifdef DEBUG

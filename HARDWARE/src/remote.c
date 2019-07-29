@@ -138,8 +138,8 @@ void Remote_Init(void)
 u32 Dval0,Dval_in0,Dval1,Dval_in1,Dval2,Dval_in2,Dval3,Dval_in3,Dval4,Dval_in4,
     Dval5,Dval_in5,Dval6,Dval_in6,Dval7,Dval_in7,Dval_in8,Dval8;		//ÏÂ½µÑØÊ±¼ÆÊýÆ÷µÄÖµý	  
 //¶¨Ê±Æ÷5ÖÐ¶Ï·þÎñ³ÌÐò	 
-u8 cc1_more=0,cc2_more=0,cc3_more=0,cc4_more=0,cc5_more=0,cc6_more=0,cc7_more=0,cc8_more=0,cc9_more=0;
-u8 hw_cc1=0,hw_cc2=0,hw_cc3=0,hw_cc4=0,hw_cc5=0,hw_cc6=0,hw_cc7=0,hw_cc8=0,hw_cc9=0;
+u8 cc1_more=0,cc2_more=0,cc3_more=0,cc4_more=0,cc5_more=0,cc6_more=0,cc7_more=0,cc8_more=0;
+u8 hw_cc1=0,hw_cc2=0,hw_cc3=0,hw_cc4=0,hw_cc5=0,hw_cc6=0,hw_cc7=0,hw_cc8=0;
 void TIM2_IRQHandler(void)
 { 		    	 
   if(TIM_GetITStatus(TIM2,TIM_IT_Update)!=RESET)
