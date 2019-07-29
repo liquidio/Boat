@@ -1,31 +1,77 @@
 #include "timer.h"
 #include "led.h"
-#include "pid.h"
 #include "remote.h"
 #include "delay.h"
-
+#include <math.h>
 //#define HUANG//定义使用哪艘船的参数
 
+#ifdef DEBUG
+u8 blue;
+#endif
+
 #ifdef HUANG //黄船
-#define MID 118
+u8 pwm=118;//中间值pwm
+u8 l1,
+	l2,
+	l3,
+	r1,
+	r2,
+	r3;
+u8 k1,k2,k3,k4;
 #endif
 
 #ifdef BAI //白船
-
+u8 mid;//中间值pwm
+u8 l1,
+	l2,
+	l3,
+	r1,
+	r2,
+	r3;
+u8 k1,k2,k3,k4;//分段的比例系数
 #endif
 #ifdef HONG //红船
-
+u8 mid=118;//中间值pwm
+u8 l1,
+	l2,
+	l3,
+	r1,
+	r2,
+	r3;
+u8 k1,k2,k3,k4;//分段的比例系数
 #endif
 
 #ifdef PO //破军
-
+u8 mid;//中间值pwm
+u8 l1,
+	l2,
+	l3,
+	r1,
+	r2,
+	r3
+u8 k1,k2,k3,k4;//分段的比例系数
 #endif
 #ifdef HAI //海鹰
-
+u8 mid;//中间值pwm
+u8 l1,
+	l2,
+	l3,
+	r1,
+	r2,
+	r3;
+u8 k1,k2,k3,k4;//分段的比例系数
 #endif
 #ifdef WU //无名
-
+u8 mid;//中间值pwm
+u8 l1,
+	l2,
+	l3,
+	r1,
+	r2,
+	r3;
+u8 k1,k2,k3,k4;//分段的比例系数
 #endif
+int par,k;//偏差和比例系数
 
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
@@ -70,20 +116,14 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 	TIM_Cmd(TIM4, ENABLE);  //使能TIMx外设
 							 
 }
-u8 control_ms=0;//电机控制时间间隔1个10ms
-u16 control_val=0,time;
+
 void TIM4_IRQHandler(void)   //TIM3中断
 {
 	
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) //检查指定的TIM中断发生与否:TIM 中断源 
 		{
 			cc9_more++;
-			control_ms ++;
-			time ++;
-			if(control_ms==2)
-			{
-				control();
-				control_ms =0;}
+			control();
 	
 	TIM_ClearFlag(TIM4, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源
 	}
@@ -123,7 +163,7 @@ void TIM4_IRQHandler(void)   //TIM3中断
 }
 
 void control(void){
-	
+	#ifndef DEBUG
 	#ifdef HUANG //黄船
 			if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){TIM_SetCompare1(TIM1,118);}
 			else if(hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6){TIM_SetCompare1(TIM1,118);}
@@ -143,11 +183,11 @@ void control(void){
 		if(hw_cc2&&hw_cc3)TIM_SetCompare1(TIM1,124);
 
 		if(hw_cc3)TIM_SetCompare1(TIM1,126);
-		if(hw_cc8)TIM_SetCompare1(TIM1,122);
-		if(hw_cc3&&hw_cc4)TIM_SetCompare1(TIM1,120);
+		//if(hw_cc8)TIM_SetCompare1(TIM1,122);
+		if(hw_cc3&&hw_cc4)par =(int)(l1+l2)/2;
 
-		if(hw_cc4) TIM_SetCompare1(TIM1,118);//中间值
-		if(hw_cc4&&hw_cc8)TIM_SetCompare1(TIM1,122);
+		if(hw_cc4) par=pwm;//中间值
+		//if(hw_cc4&&hw_cc8)p
 		if(hw_cc4&&hw_cc9)TIM_SetCompare1(TIM1,110);
 		if(hw_cc9&&hw_cc5)TIM_SetCompare1(TIM1,135);
 
@@ -161,9 +201,32 @@ void control(void){
 
 		if(hw_cc7)TIM_SetCompare1(TIM1,80);
 		if(hw_cc5&&hw_cc6&&hw_cc7)TIM_SetCompare1(TIM1,98);}
-			
-	hw_cc1=0;hw_cc2=0;hw_cc3=0;hw_cc4=0;hw_cc5=0;hw_cc6=0;hw_cc7=0;hw_cc8=0;hw_cc9=0;
-
+#endif
+/*确定哪一段的比例系数*/
+		u8 e;
+		e=fabs(par-pwm);
+		if(e<l1){
+			k=k1;
+		}else if((e>=l1)&&(e<l2)){
+			k=k2;
+		}else if ((e>=l2)&&(e<=l3)){
+			k=k3;
+		}else {
+		k=k4;
+		}
+/*计算输出pwm*/
+		if(par<(pwm-1)){
+			par = par +k;
+		}else if(par>(pwm+1)){
+			par = par -k;
+		}else{
+			par = pwm;
+		}
+	TIM_SetCompare1(TIM1,par);
+#endif
+		
+#ifdef DEBUG
+		TIM_SetCompare1(TIM1,blue);
 #endif
 }
 
