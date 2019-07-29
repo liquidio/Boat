@@ -4,9 +4,17 @@
 #include "delay.h"
 #include <math.h>
 //#define HUANG//定义使用哪艘船的参数
-
+#define DEBUG
 #ifdef DEBUG
 u8 blue;
+u8 pwm=118;//中间值pwm
+u8 l1,
+	l2,
+	l3,
+	r1,
+	r2,
+	r3;
+u8 k1,k2,k3,k4;
 #endif
 
 #ifdef HUANG //黄船
@@ -164,45 +172,50 @@ void TIM4_IRQHandler(void)   //TIM3中断
 
 void control(void){
 	#ifndef DEBUG
-	#ifdef HUANG //黄船
-			if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){TIM_SetCompare1(TIM1,118);}
-			else if(hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6){TIM_SetCompare1(TIM1,118);}
-			else if(hw_cc2&&hw_cc3&&hw_cc5&&hw_cc6&&!hw_cc4){
-				//选择门
+			if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
+			else if((hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6)&&!hw_cc4){
+				par=l2;//选择门
+			}else if(hw_cc4&&(hw_cc5||hw_cc6||hw__cc7){
 			}else
 			{
-		if(hw_cc3&&hw_cc4&&hw_cc5){TIM_SetCompare1(TIM1,118);}
-		if(hw_cc1&&hw_cc2&&hw_cc3)TIM_SetCompare1(TIM1,125);
+		if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
+		if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;
 		
-		if(hw_cc1)TIM_SetCompare1(TIM1,140);
+		if(hw_cc1)par=l3;
 
-		if(hw_cc1&&hw_cc2)TIM_SetCompare1(TIM1,135);
+		if(hw_cc1&&hw_cc2)par=round((l2+l3)/2);
 
-		if(hw_cc2)TIM_SetCompare1(TIM1,130);
+		if(hw_cc2)par=l2;
 
-		if(hw_cc2&&hw_cc3)TIM_SetCompare1(TIM1,124);
+		if(hw_cc2&&hw_cc3)par=round((l2+l1)/2);
 
-		if(hw_cc3)TIM_SetCompare1(TIM1,126);
+		if(hw_cc3)par=l1;
 		//if(hw_cc8)TIM_SetCompare1(TIM1,122);
-		if(hw_cc3&&hw_cc4)par =(int)(l1+l2)/2;
+		if(hw_cc3&&hw_cc4)par =round((l1+l2)/2);
 
 		if(hw_cc4) par=pwm;//中间值
 		//if(hw_cc4&&hw_cc8)p
-		if(hw_cc4&&hw_cc9)TIM_SetCompare1(TIM1,110);
-		if(hw_cc9&&hw_cc5)TIM_SetCompare1(TIM1,135);
+		//if(hw_cc4&&hw_cc9)TIM_SetCompare1(TIM1,110);
+		//if(hw_cc9&&hw_cc5)TIM_SetCompare1(TIM1,135);
 
-		if(hw_cc5)TIM_SetCompare1(TIM1,110);
+		if(hw_cc5)par=r1;
 
-		if(hw_cc5&&hw_cc6)TIM_SetCompare1(TIM1,95);
+		if(hw_cc5&&hw_cc6)par =round((r1+r2)/2);
 
-		if(hw_cc6)TIM_SetCompare1(TIM1,90);
+		if(hw_cc6)par =r2;
 
-		if(hw_cc6&&hw_cc7)TIM_SetCompare1(TIM1,85);
+		if(hw_cc6&&hw_cc7)par =round((r2+r3)/2);
 
-		if(hw_cc7)TIM_SetCompare1(TIM1,80);
-		if(hw_cc5&&hw_cc6&&hw_cc7)TIM_SetCompare1(TIM1,98);}
+		if(hw_cc7)par=r3;
+		if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
+			}
 #endif
 /*确定哪一段的比例系数*/
+#ifdef DEBUG
+			par = blue;
+			//k1,k2,k3
+			//l1,l2,l3
+#endif
 		u8 e;
 		e=fabs(par-pwm);
 		if(e<l1){
@@ -223,10 +236,5 @@ void control(void){
 			par = pwm;
 		}
 	TIM_SetCompare1(TIM1,par);
-#endif
-		
-#ifdef DEBUG
-		TIM_SetCompare1(TIM1,blue);
-#endif
 }
 
