@@ -1,5 +1,6 @@
 #include "sys.h"
-#include "usart.h"	  
+#include "usart.h"	
+#include <stdlib.h>
 ////////////////////////////////////////////////////////////////////////////////// 	 
 //如果使用ucos,则包括下面的头文件即可.
 #if SYSTEM_SUPPORT_OS
@@ -125,71 +126,69 @@ void usart1_send_char(u8 c)
 	      USART_SendData(USART1,c);  
 } 
 
-
-       u8 TxBuffer[256];
-static u8 RxBuffer[50];
-
 void USART1_IRQHandler(void)                	//串口1中断服务程序
 	{
-//	u8 Res;
+	u8 Res;
 #if SYSTEM_SUPPORT_OS 		//如果SYSTEM_SUPPORT_OS为真，则需要支持OS.
 	OSIntEnter();    
 #endif
-	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-  {
-		u8 com_data = USART1->DR;                               //接受上位机发送的数据
-		static u8 _data_len = 0,_data_cnt = 0;
-		static u8 RxState = 0;	
-		if(RxState==0&&com_data==0xAA)
+	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
 		{
-			RxState=1;
-			RxBuffer[0]=com_data;
-		}
-		else if(RxState==1&&com_data==0xAF)
-		{
-			RxState=2;
-			RxBuffer[1]=com_data;
-		}
-		else if(RxState==2&&com_data>0&&com_data<0XF1)
-		{
-			RxState=3;
-			RxBuffer[2]=com_data;
-		}
-		else if(RxState==3&&com_data<50)
-		{
-			RxState = 4;
-			RxBuffer[3]=com_data;
-			_data_len = com_data;
-			_data_cnt = 0;
-		}
-		else if(RxState==4&&_data_len>0)
-		{
-			_data_len--;
-			RxBuffer[4+_data_cnt++]=com_data;
-			if(_data_len==0)
-				RxState = 5;
-		}
-		else if(RxState==5)
-		{
-			RxState = 0;
-			RxBuffer[4+_data_cnt]=com_data;
-			Data_Receive(RxBuffer,_data_cnt+5);//调用数据解析函数
-		}
-		else 
-			RxState = 0;
-  }
+		Res =USART_ReceiveData(USART1);	//读取接收到的数据
+		
+		if((USART_RX_STA&0x8000)==0)//接收未完成
+			{
+			if(USART_RX_STA&0x4000)//接收到了0x0d
+				{
+				if(Res!=0x0a)USART_RX_STA=0;//接收错误,重新开始
+				else {//接收完成了 
+				USART_RX_STA|=0x8000;
+				Data_Receive(USART_RX_BUF);
+				}	
+				}
+			else //还没收到0X0D
+				{	
+				if(Res==0x0d)USART_RX_STA|=0x4000;
+				else
+					{
+					USART_RX_BUF[USART_RX_STA&0X3FFF]=Res ;
+					USART_RX_STA++;
+					if(USART_RX_STA>(USART_REC_LEN-1))USART_RX_STA=0;//接收数据错误,重新开始接收	  
+					}		 
+				}
+			}   		 
+     }
+	}
 
+void Data_Receive(u8 RxBuffer[]){
 
-	USART_ClearITPendingBit(USART1,USART_IT_ORE);
+	if(RxBuffer[0]=='b'){
+	blue = RxBuffer[1];
+	}else
+		if((RxBuffer[0]=='k')&&(RxBuffer[1]=='1')){
+
+		k1 = RxBuffer[2];
+	}else
+		if((RxBuffer[0]=='k')&&(RxBuffer[1]=='2')){
+		k2 = RxBuffer[2];
+	}else
+			if((RxBuffer[0]=='k')&&(RxBuffer[1]=='3')){
+		k3 = RxBuffer[2];
+	}	else
+			if((RxBuffer[0]=='l')&&(RxBuffer[1]=='1')){
+		l1 = RxBuffer[2];
+	}else
+			if((RxBuffer[0]=='l')&&(RxBuffer[1]=='2')){
+		l2 = RxBuffer[2];
+	}else
+		if((RxBuffer[2]=='l')&&(RxBuffer[1]=='3')){
+		l3 = RxBuffer[2];
 }
-void Data_Receive(u8 RxBuffer[],u8 _data_cnt){};
+}
+
 #if SYSTEM_SUPPORT_OS 	//如果SYSTEM_SUPPORT_OS为真，则需要支持OS.
 	OSIntExit();  											 
 #endif
 
 #endif	
-
-
-
-
 
