@@ -3,8 +3,8 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
-//#define HUANG//∂®“Â π”√ƒƒÀ“¥¨µƒ≤Œ ˝
-#define DEBUG
+#define PO//∂®“Â π”√ƒƒÀ“¥¨µƒ≤Œ ˝
+//#define DEBUG
 #ifdef DEBUG
 u8 blue;
 u8 pwm=118;//÷–º‰÷µpwm
@@ -18,20 +18,20 @@ u8 k1=1,k2=1,k3=1,k4=1;
 #endif
 
 #ifdef HUANG //ÈªÑ
-u8 pwm=118;//÷–º‰÷µpwm
-u8 l1,
+u16 pwm=118;//÷–º‰÷µpwm
+u16 l1,
 	l2,
 	l3,
 	r1,
 	r2,
 	r3;
-u8 k1=1,k2=1,k3=1,k4=1;
+u18 k1=1,k2=1,k3=1,k4=1;
 #endif
 
 
 #ifdef BAI //∞◊¥¨
-u8 pwm=1050;//÷–º‰÷µpwm
-u8 l1=800,
+u16 pwm=1050;//÷–º‰÷µpwm
+u16 l1=800,
 	l2=850,
 	l3=900,
 	r1=1200,
@@ -40,8 +40,8 @@ u8 l1=800,
 u8 k1=1,k2=1,k3=1,k4=1;//∑÷∂Œµƒ±»¿˝œµ ˝
 #endif
 #ifdef HONG //∫Ï¥¨
-u8 pwm=1030;//÷–º‰÷µpwm
-u8 l1=550,
+u16 pwm=1030;//÷–º‰÷µpwm
+u16 l1=550,
 	l2=750,
 	l3=900,
 	r1=1200,
@@ -51,18 +51,18 @@ u8 k1=1,k2=1,k3=1,k4=1;//∑÷∂Œµƒ±»¿˝œµ ˝
 #endif
 
 #ifdef PO //∆∆æ¸
-u8 pwm=1000;//÷–º‰÷µpwm
-u8 l1=700,
+u16 pwm=1000;//÷–º‰÷µpwm
+u16 l1=700,
 	l2=750,
 	l3=925,
 	r1=1100,
 	r2=1200,
 	r3=1370;
-u8 k1=1,k2=1,k3=1,k4=1;//∑÷∂Œµƒ±»¿˝œµ ˝
+u8 k1=1,k2=1,k3=1,k4=0;//∑÷∂Œµƒ±»¿˝œµ ˝
 #endif
 #ifdef HAI //∫£”•
-u8 pwm=1020;//÷–º‰÷µpwm
-u8 l1=750,
+u16 pwm=1020;//÷–º‰÷µpwm
+u16 l1=750,
 	l2=850,
 	l3=950,
 	r1=1100,
@@ -73,8 +73,8 @@ u8 k1=1,k2=1,k3=1,k4=1;//∑÷∂Œµƒ±»¿˝œµ ˝
 
 
 #ifdef WU //Êó†Âêç
-u8 pwm=1050;
-u8 l1=750,
+u16 pwm=1050;
+u16 l1=750,
 	l2=850,
 	l3=950,
 	r1=1250,
@@ -85,7 +85,7 @@ u8 k1=1,k2=1,k3=1,k4=1;
 #endif
 
 int par,k;//ËàµÊú∫ËΩ¨Âä®ÈáèÂíåÊØî‰æãÁ≥ªÊï∞
-u8 blue;
+u16 blue;
 
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
@@ -130,11 +130,15 @@ void TIM4_IRQHandler(void)   //TIM3÷–∂œ
 void control(void){
 	#ifndef DEBUG
 			if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
-			else if((hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6)&&!hw_cc4){
-				par=l2;//—°‘Ò√≈
-			}else if(hw_cc4&&(hw_cc5||hw_cc6||hw_cc7)){
-				par =pwm;
-			}else
+//			
+//			else if(hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6) {par=pwm;}
+//			else if(hw_cc3&&hw_cc4&&hw_cc5) {par=pwm;}
+//			else if((hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6)&&!hw_cc4){
+//				par=l2;//—°‘Ò√≈
+//			}else if(hw_cc4&&(hw_cc5||hw_cc6||hw_cc7)){
+//				par =pwm;
+//			}
+			else
 			{
 		if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
 		if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;
@@ -167,6 +171,7 @@ void control(void){
 		if(hw_cc7)par=r3;
 		if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
 			}
+//			if(!(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7)){LED1=~LED1;}
 		hw_cc1=0;
 		hw_cc2=0;
 		hw_cc3=0;
@@ -183,21 +188,26 @@ void control(void){
 #endif
 		u8 e;
 		e=fabs(par-pwm);
-		if(e<l1){
+		if(e<=(l3-pwm)){
 			k=k1;
-		}else if((e>=l1)&&(e<l2)){
+		}else if((e>(l3-pwm))&&(e<=(l2-pwm))){
 			k=k2;
-		}else if ((e>=l2)&&(e<=l3)){
+		}else if ((e>(l2-pwm))&&(e<=(l1-pwm))){
 			k=k3;
 		}else {
 		k=k4;
 		}
+
+//k=1;
 /*º∆À„ ‰≥ˆpwm*/
-		if(par<(pwm-1)){
+		if(par<(pwm-10))
+			{
 			par = par +k;
-		}else if(par>(pwm+1)){
+		}else if(par>(pwm+10))
+			{
 			par = par -k;
-		}else{
+		}else
+			{
 			par = pwm;
 		}
 	TIM_SetCompare1(TIM1,par);
