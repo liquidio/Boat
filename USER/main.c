@@ -6,31 +6,37 @@
 #include "usart.h"
 #include "pwm.h"
 
-extern u8 k1;
  int main(void)
  {
-	 u8 len,t;
 	delay_init();
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);// ÉèÖÃÖĞ¶ÏÓÅÏÈ¼¶·Ö×é2	  
-	uart_init(9600);	 	//´®¿Ú³õÊ¼»¯Îª115200
-	LED_Init();		  		//³õÊ¼»¯ÓëLEDÁ¬½ÓµÄÓ²¼ş½Ó¿Ú
-	TIM1_PWM_Init(1439,999);
-	 TIM_SetCompare1(TIM1,36);
-	 Remote_Init();			//ºìÍâ½ÓÊÕ³õÊ¼»
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);// 2	  
+	//uart_init(9600);	 	
+	LED_Init();		  		//ledåˆå§‹åŒ–
+	TIM1_PWM_Init(14399,99);
+	 //TIM_SetCompare1(TIM1,36);
+	 Remote_Init();			//çº¢å¤–æ¥æ”¶åˆå§‹åŒ–
 	TIM4_Int_Init(2000,720-1);	
-	
+	/*èˆµæœºåˆå§‹åŒ–*/
+	#ifdef HUANG
+	 TIM_SetCompare1(TIM1,1000);
+	#endif
+	#ifdef BAI
+	 TIM_SetCompare1(TIM1,1000);
+	#endif
+	#ifdef HONG
+	 TIM_SetCompare1(TIM1,950);
+	#endif
+	#ifdef HAI
+	 TIM_SetCompare1(TIM1,1020);
+	#endif
+	#ifdef PO
+	 TIM_SetCompare1(TIM1,1000);
+	#endif
+	#ifdef WU
+	 TIM_SetCompare1(TIM1,1050);
+	#endif
 	while(1)
 	{	
-		if(USART_RX_STA&0x8000)
-		{	
-			len=USART_RX_STA&0x3fff;
-			for (t=0;t<len;t++)
-			if(USART_RX_BUF[0]=='0'){
-				USART1->DR=USART_RX_BUF[t];
-				while((USART1->SR&0X40)==0);
-			}
-			USART_RX_STA=0;
-		}
 }
 	}
 
