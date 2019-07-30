@@ -29,48 +29,48 @@ u8 k1,k2,k3,k4;
 #endif
 
 #ifdef BAI //白船
-u8 mid;//中间值pwm
-u8 l1,
-	l2,
-	l3,
-	r1,
-	r2,
-	r3;
+u8 pwm=1050;//中间值pwm
+u8 l1=800,
+	l2=850,
+	l3=900,
+	r1=1200,
+	r2=1350,
+	r3=1500;
 u8 k1,k2,k3,k4;//分段的比例系数
 #endif
 #ifdef HONG //红船
-u8 mid=118;//中间值pwm
-u8 l1,
-	l2,
-	l3,
-	r1,
-	r2,
-	r3;
+u8 pwm=1030;//中间值pwm
+u8 l1=550,
+	l2=750,
+	l3=900,
+	r1=1200,
+	r2=1350,
+	r3=1500;
 u8 k1,k2,k3,k4;//分段的比例系数
 #endif
 
 #ifdef PO //破军
-u8 mid;//中间值pwm
-u8 l1,
-	l2,
-	l3,
-	r1,
-	r2,
-	r3
+u8 pwm=1000;//中间值pwm
+u8 l1=700,
+	l2=750,
+	l3=925,
+	r1=1100,
+	r2=1200,
+	r3=1370;
 u8 k1,k2,k3,k4;//分段的比例系数
 #endif
 #ifdef HAI //海鹰
-u8 mid;//中间值pwm
-u8 l1,
-	l2,
-	l3,
-	r1,
-	r2,
-	r3;
+u8 pwm=1020;//中间值pwm
+u8 l1=750,
+	l2=850,
+	l3=950,
+	r1=1100,
+	r2=1200,
+	r3=1300;
 u8 k1,k2,k3,k4;//分段的比例系数
 #endif
 #ifdef WU //无名
-u8 mid;//中间值pwm
+u8 pwm;//中间值pwm
 u8 l1,
 	l2,
 	l3,
@@ -135,17 +135,17 @@ void control(void){
 		if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
 		if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;
 		
-		if(hw_cc1)par=l3;
+		if(hw_cc1)par=l1;
 
-		if(hw_cc1&&hw_cc2)par=round((l2+l3)/2);
+		if(hw_cc1&&hw_cc2)par=round((l1+l2)/2);
 
 		if(hw_cc2)par=l2;
 
-		if(hw_cc2&&hw_cc3)par=round((l2+l1)/2);
+		if(hw_cc2&&hw_cc3)par=round((l2+l3)/2);
 
-		if(hw_cc3)par=l1;
+		if(hw_cc3)par=l3;
 		//if(hw_cc8)TIM_SetCompare1(TIM1,122);
-		if(hw_cc3&&hw_cc4)par =round((l1+l2)/2);
+		if(hw_cc3&&hw_cc4)par =round((l3+pwm)/2);
 
 		if(hw_cc4) par=pwm;//中间值
 		//if(hw_cc4&&hw_cc8)p
