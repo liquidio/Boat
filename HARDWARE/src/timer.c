@@ -3,17 +3,17 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
-#define HUANG//¶¨ÒåÊ¹ÓÃÄÄËÒ´¬µÄ²ÎÊı
-//#define DEBUG
+//#define HUANG//¶¨ÒåÊ¹ÓÃÄÄËÒ´¬µÄ²ÎÊı
+#define DEBUG
 #ifdef DEBUG
 u8 blue;
 u8 pwm=118;//ÖĞ¼äÖµpwm
-u8 l1=100,
-	l2=100,
-	l3=100,
-	r1=100,
-	r2=100=100,
-	r3=100;
+u8 l1,
+	l2,
+	l3,
+	r1,
+	r2,
+	r3;
 u8 k1=1,k2=1,k3=1,k4=1;
 #endif
 
@@ -79,6 +79,7 @@ u8 l1,
 	r3;
 u8 k1,k2,k3,k4;//·Ö¶ÎµÄ±ÈÀıÏµÊı
 #endif
+
 int par,k;//Æ«²îºÍ±ÈÀıÏµÊ
 u8 blue;
 

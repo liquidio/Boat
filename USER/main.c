@@ -1,25 +1,38 @@
 #include "led.h"
 #include "delay.h"
 #include "sys.h"
-#include "remote.h"  
-#include "pwm.h" 
+#include "remote.h"   
 #include "timer.h" 
 #include "usart.h"
+#include "pwm.h"
 
+extern u8 k1;
  int main(void)
- { 
+ {
+	 u8 len,t;
+	delay_init();
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);// ÉèÖÃÖÐ¶ÏÓÅÏÈ¼¶·Ö×é2	  
-	uart_init(115200);	 	//´®¿Ú³õÊ¼»¯Îª115200
+	uart_init(9600);	 	//´®¿Ú³õÊ¼»¯Îª115200
 	LED_Init();		  		//³õÊ¼»¯ÓëLEDÁ¬½ÓµÄÓ²¼þ½Ó¿Ú
-	//PID_Init();
-  TIM1_PWM_Init(1439,999);
+	TIM1_PWM_Init(1439,999);
 	 TIM_SetCompare1(TIM1,36);
 	 Remote_Init();			//ºìÍâ½ÓÊÕ³õÊ¼»
 	TIM4_Int_Init(2000,720-1);	
+	
 	while(1)
-	{
-	}
+	{	
+		if(USART_RX_STA&0x8000)
+		{	
+			len=USART_RX_STA&0x3fff;
+			for (t=0;t<len;t++)
+			if(USART_RX_BUF[0]=='0'){
+				USART1->DR=USART_RX_BUF[t];
+				while((USART1->SR&0X40)==0);
+			}
+			USART_RX_STA=0;
+		}
 }
+	}
 
 
 
