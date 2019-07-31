@@ -6,7 +6,7 @@
 #include "usart.h"
 #include "pwm.h"
 
-#define HUANG
+#define HAI
 
  int main(void)
  {

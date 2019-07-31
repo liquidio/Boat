@@ -3,7 +3,7 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
-#define HUANG//定义使用哪艘船的参数
+#define HAI//定义使用哪艘船的参数
 //#define DEBUG
 #ifdef DEBUG
 u8 blue;
@@ -61,14 +61,8 @@ u16 l1=700,
 u8 k1=1,k2=1,k3=1,k4=0;//分段的比例系数
 #endif
 #ifdef HAI //海鹰
-u16 pwm=1020;//中间值pwm
-u16 l1=750,
-	l2=850,
-	l3=950,
-	r1=1100,
-	r2=1200,
-	r3=1300;
-u8 k1=1,k2=1,k3=1,k4=1;//分段的比例系数
+u16 mid = 1030,left=750,right=1300;
+u8 k1=10,k2=15,k3=20,k4=50;//分段的比例系数
 #endif
 
 
@@ -84,8 +78,7 @@ u8 k1=1,k2=1,k3=1,k4=1;
 
 #endif
 
-u16 par=0,k=0;//鑸垫満杞姩閲忓拰姣斾緥绯绘暟
-u16 blue;
+u16 par=0,k=0,pwm;//鑸垫満杞姩閲忓拰姣斾緥绯绘暟
 
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
@@ -129,56 +122,20 @@ void TIM4_IRQHandler(void)   //TIM3中断
 
 void control(void){
 	#ifndef DEBUG
-		if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
-		if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;
-		
-		if(hw_cc1)par=l1;
-
-		if(hw_cc1&&hw_cc2)par=round((l1+l2)/2);
-
-		if(hw_cc2)par=l2;
-
-		if(hw_cc2&&hw_cc3)par=round((l2+l3)/2);
-
-		if(hw_cc3)par=l3;
-		if(hw_cc3&&hw_cc4)par =round((l3+pwm)/2);
-
-		if(hw_cc4) par=pwm;//中间值
-
-
-		if(hw_cc5)par=r1;
-
-		if(hw_cc5&&hw_cc6)par =round((r1+r2)/2);
-
-		if(hw_cc6)par =r2;
-
-		if(hw_cc6&&hw_cc7)par =round((r2+r3)/2);
-
-		if(hw_cc7)par=r3;
-		if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
-		
-if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
+		if(hw_cc4)pwm=mid;
+		if(hw_cc1)pwm=left;
+		if(hw_cc7)pwm=right;
 		hw_cc1=0;
-		hw_cc2=0;
-		hw_cc3=0;
+		hw_cc7=0;
 			hw_cc4=0;
-			hw_cc5=0;
-			hw_cc6=0;
-			hw_cc7=0;
 #endif
 /*确定哪一段的比例系数*/
-#ifdef DEBUG
-			par = blue;
-			//k1,k2,k3
-			//l1,l2,l3
-#endif
-		u8 e;
-		e=fabs(par-pwm);
-		if(e<=90){
+
+		if(fabs(par-pwm)<=100){
 			k=k1;
-		}else if((e>180)&&(e<=210)){
+		}else if((fabs(par-pwm)>100)&&(fabs(par-pwm)<=150)){
 			k=k2;
-		}else if ((e>210)&&(e <= 255)){
+		}else if ((fabs(par-pwm)>150)&&(fabs(par-pwm)<= 300)){
 			k=k3;
 		}else {
 		k=k4;
@@ -186,10 +143,10 @@ if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
 
 //k=1;
 /*计算输出pwm*/
-		if(par<(pwm-10))
+		if(par<(pwm-1))
 			{
 			par = par +k;
-		}else if(par>(pwm+10))
+		}else if(par>(pwm+1))
 			{
 			par = par -k;
 		}else
