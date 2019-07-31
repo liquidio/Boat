@@ -3,7 +3,7 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
-#define PO//¶¨ÒåÊ¹ÓÃÄÄËÒ´¬µÄ²ÎÊı
+#define HUANG//¶¨ÒåÊ¹ÓÃÄÄËÒ´¬µÄ²ÎÊı
 //#define DEBUG
 #ifdef DEBUG
 u8 blue;
@@ -17,15 +17,15 @@ u8 l1,
 u8 k1=1,k2=1,k3=1,k4=1;
 #endif
 
-#ifdef HUANG //é»„
-u16 pwm=118;//ÖĞ¼äÖµpwm
-u16 l1,
-	l2,
-	l3,
-	r1,
-	r2,
-	r3;
-u18 k1=1,k2=1,k3=1,k4=1;
+#ifdef HUANG
+u16 pwm=800;//ÖĞ¼äÖµpwm
+u16 l1=550,
+	l2=600,
+	l3=700,
+	r1=850,
+	r2=910,
+	r3=1000;
+u8 k1=1,k2=1,k3=2,k4=4;
 #endif
 
 
@@ -84,7 +84,7 @@ u8 k1=1,k2=1,k3=1,k4=1;
 
 #endif
 
-int par,k;//èˆµæœºè½¬åŠ¨é‡å’Œæ¯”ä¾‹ç³»æ•°
+u16 par=0,k=0;//èˆµæœºè½¬åŠ¨é‡å’Œæ¯”ä¾‹ç³»æ•°
 u16 blue;
 
 void TIM4_Int_Init(u16 arr,u16 psc)
@@ -129,17 +129,6 @@ void TIM4_IRQHandler(void)   //TIM3ÖĞ¶Ï
 
 void control(void){
 	#ifndef DEBUG
-			if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
-//			
-//			else if(hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6) {par=pwm;}
-//			else if(hw_cc3&&hw_cc4&&hw_cc5) {par=pwm;}
-//			else if((hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6)&&!hw_cc4){
-//				par=l2;//Ñ¡ÔñÃÅ
-//			}else if(hw_cc4&&(hw_cc5||hw_cc6||hw_cc7)){
-//				par =pwm;
-//			}
-			else
-			{
 		if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
 		if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;
 		
@@ -167,8 +156,8 @@ void control(void){
 
 		if(hw_cc7)par=r3;
 		if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
-			}
-
+		
+if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
 		hw_cc1=0;
 		hw_cc2=0;
 		hw_cc3=0;
@@ -185,12 +174,11 @@ void control(void){
 #endif
 		u8 e;
 		e=fabs(par-pwm);
-
-		if(e<=(l3-pwm)){
+		if(e<=90){
 			k=k1;
-		}else if((e>(l3-pwm))&&(e<=(l2-pwm))){
+		}else if((e>180)&&(e<=210)){
 			k=k2;
-		}else if ((e>(l2-pwm))&&(e<=(l1-pwm))){
+		}else if ((e>210)&&(e <= 255)){
 			k=k3;
 		}else {
 		k=k4;
@@ -208,6 +196,7 @@ void control(void){
 			{
 			par = pwm;
 		}
+			if((par<500)||(par>1600))par =pwm;
 	TIM_SetCompare1(TIM1,par);
 }
 

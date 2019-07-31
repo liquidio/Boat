@@ -28,7 +28,7 @@ void TIM1_PWM_Init(u16 arr,u16 psc)
 	                                                                     	
 
    //设置该引脚为复用输出功能,输出TIM1 CH1的PWM脉冲波形
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_9; //TIM_CH1
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8; //TIM_CH1
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  //复用推挽输出
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
@@ -42,7 +42,7 @@ void TIM1_PWM_Init(u16 arr,u16 psc)
  
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; //选择定时器模式:TIM脉冲宽度调制模式2
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
-	TIM_OCInitStructure.TIM_Pulse = 200; //设置待装入捕获比较寄存器的脉冲值
+	TIM_OCInitStructure.TIM_Pulse = 800; //设置待装入捕获比较寄存器的脉冲值
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; //输出极性:TIM输出比较极性高
 	TIM_OC1Init(TIM1, &TIM_OCInitStructure);  //根据TIM_OCInitStruct中指定的参数初始化外设TIMx
 	TIM_OC2Init(TIM1, &TIM_OCInitStructure);
