@@ -3,7 +3,7 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
-#define HUANG//定义使用哪艘船的参数
+#define HAI//定义使用哪艘船的参数
 //#define DEBUG
 #ifdef DEBUG
 u8 blue;
@@ -58,7 +58,7 @@ u16 l1=700,
 	r1=1100,
 	r2=1200,
 	r3=1370;
-u8 k1=1,k2=1,k3=1,k4=0;//分段的比例系数
+u8 k1=0,k2=0,k3=0,k4=0;//分段的比例系数
 #endif
 #ifdef HAI //海鹰
 u16 pwm=1020;//中间值pwm
@@ -85,7 +85,7 @@ u8 k1=1,k2=1,k3=1,k4=1;
 #endif
 
 u16 par=0,k=0;//鑸垫満杞姩閲忓拰姣斾緥绯绘暟
-u16 blue;
+u16 time=0;
 
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
@@ -100,7 +100,6 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0; //设置时钟分割:TDTS = Tck_tim
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIM向上计数模式
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位
- 
 	
 	TIM_ITConfig(  //使能或者失能指定的TIM中断
 		TIM4, //TIM4
@@ -121,7 +120,7 @@ void TIM4_IRQHandler(void)   //TIM3中断
 {
 	
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) //检查指定的TIM中断发生与否:TIM 中断源 
-		{
+		{time++;
 			control();
 	TIM_ClearFlag(TIM4, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源
 	}
@@ -129,34 +128,35 @@ void TIM4_IRQHandler(void)   //TIM3中断
 
 void control(void){
 	#ifndef DEBUG
-		if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
-		if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;
-		
-		if(hw_cc1)par=l1;
+if(time==2){
+//		if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
+//		if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;
+//		
+		if(hw_cc1&&(!hw_cc7))par=l1;
 
-		if(hw_cc1&&hw_cc2)par=round((l1+l2)/2);
+//		if(hw_cc1&&hw_cc2)par=round((l1+l2)/2);
+	else
+		if(hw_cc2&&(!hw_cc7))par=l1;
 
-		if(hw_cc2)par=l2;
+//		if(hw_cc2&&hw_cc3)par=round((l2+l3)/2);
 
-		if(hw_cc2&&hw_cc3)par=round((l2+l3)/2);
+//		if(hw_cc3)par=l3;
+//		if(hw_cc3&&hw_cc4)par =round((l3+pwm)/2);
+else
+		if(hw_cc4||hw_cc3||hw_cc5) par=pwm;//中间值
 
-		if(hw_cc3)par=l3;
-		if(hw_cc3&&hw_cc4)par =round((l3+pwm)/2);
+//		if(hw_cc5)par=r1;
 
-		if(hw_cc4) par=pwm;//中间值
+//		if(hw_cc5&&hw_cc6)par =round((r1+r2)/2);
+else
+		if(hw_cc6&&(!hw_cc1))par =r3;
 
+//		if(hw_cc6&&hw_cc7)par =round((r2+r3)/2);
 
-		if(hw_cc5)par=r1;
-
-		if(hw_cc5&&hw_cc6)par =round((r1+r2)/2);
-
-		if(hw_cc6)par =r2;
-
-		if(hw_cc6&&hw_cc7)par =round((r2+r3)/2);
-
-		if(hw_cc7)par=r3;
-		if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
-		
+		if(hw_cc7&&(!hw_cc1))par=r3;
+//		if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
+time=0;
+		}
 if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
 		hw_cc1=0;
 		hw_cc2=0;
@@ -174,11 +174,11 @@ if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
 #endif
 		u8 e;
 		e=fabs(par-pwm);
-		if(e<=90){
+		if(e<=60){
 			k=k1;
-		}else if((e>180)&&(e<=210)){
+		}else if((e>150)&&(e<=200)){
 			k=k2;
-		}else if ((e>210)&&(e <= 255)){
+		}else if ((e>200)&&(e <= 255)){
 			k=k3;
 		}else {
 		k=k4;
@@ -199,4 +199,3 @@ if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
 			if((par<500)||(par>1600))par =pwm;
 	TIM_SetCompare1(TIM1,par);
 }
-

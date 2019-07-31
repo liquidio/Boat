@@ -6,7 +6,7 @@
 #include "usart.h"
 #include "pwm.h"
 
-#define HUANG
+#define HAI
 
  int main(void)
  {
@@ -16,7 +16,7 @@
 	LED_Init();		  		//led初始化
 	TIM1_PWM_Init(14399,99);
 	 Remote_Init();			//红外接收初始化
-	TIM4_Int_Init(1000,720-1);	
+	TIM4_Int_Init(2000,720-1);	
 //	delay_ms(600);
 	#ifdef HUANG
 	 TIM_SetCompare1(TIM1,800);
