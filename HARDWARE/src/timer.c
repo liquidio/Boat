@@ -179,11 +179,11 @@ void control(void){
 #endif
 		u8 e;
 		e=fabs(par-pwm);
-		if(e<l1){
+		if(e<=l1){
 			k=k1;
-		}else if((e>=l1)&&(e<l2)){
+		}else if((e>l1)&&(e<=l2)){
 			k=k2;
-		}else if ((e>=l2)&&(e<=l3)){
+		}else if ((e>l2)&&(e<=l3)){
 			k=k3;
 		}else {
 		k=k4;
