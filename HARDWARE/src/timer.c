@@ -61,14 +61,24 @@ u16 l1=700,
 u8 k1=0,k2=0,k3=0,k4=0;//分段的比例系数
 #endif
 #ifdef HAI //海鹰
-u16 pwm=1020;//中间值pwm
-u16 l1=750,
-	l2=850,
-	l3=950,
-	r1=1100,
-	r2=1200,
-	r3=1300;
-u8 k1=1,k2=1,k3=1,k4=1;//分段的比例系数
+u16 pwm=1021;//中间值pwm
+u16 l1=1150,
+	l2=1100,
+	l3= 1060,
+	r1=1000,
+	r2=980 ,
+	r3=900;
+	
+//u8 k1=1,k2=2,k3=5,k4=5;
+//u8 k1=2,k2=4,k3=6,k4=8;
+//u8 k1=10,k2=10,k3=5,k4=5;
+//u8 k1=5,k2=5,k3=10,k4=10;
+//u8 k1=20,k2=20,k3=20,k4=20;
+//u8 k1=10,k2=10,k3=10,k4=10;
+//u8 k1=1,k2=1,k3=5,k4=10;
+//u8 k1=1,k2=1,k3=1,k4=1;//分段的比例系数
+u8 k1=8,k2=6,k3=3,k4=1,d=1;
+//u8 k1=0,k2=0,k3=0,k4=0;
 #endif
 
 
@@ -84,7 +94,7 @@ u8 k1=1,k2=1,k3=1,k4=1;
 
 #endif
 
-u16 par=0,k=0;//鑸垫満杞姩閲忓拰姣斾緥绯绘暟
+u16 par=0,pre=0,k=0;//鑸垫満杞姩閲忓拰姣斾緥绯绘暟
 u16 time=0;
 
 void TIM4_Int_Init(u16 arr,u16 psc)
@@ -129,32 +139,27 @@ void TIM4_IRQHandler(void)   //TIM3中断
 void control(void){
 	#ifndef DEBUG
 if(time==2){
-//		if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
-//		if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;
-//		
-		if(hw_cc1&&(!hw_cc7))par=l1;
-
-//		if(hw_cc1&&hw_cc2)par=round((l1+l2)/2);
+		//if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
+		//if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;	
+		if(hw_cc1||hw_cc2)par=l1;
 	else
-		if(hw_cc2&&(!hw_cc7))par=l1;
+		//if(hw_cc1&&hw_cc2)par=round((l1+l2)/2);
 
-//		if(hw_cc2&&hw_cc3)par=round((l2+l3)/2);
+	//	if(hw_cc2&&hw_cc3)par=round((l2+l3)/2);
 
-//		if(hw_cc3)par=l3;
-//		if(hw_cc3&&hw_cc4)par =round((l3+pwm)/2);
-else
-		if(hw_cc4||hw_cc3||hw_cc5) par=pwm;//中间值
+	//	if(hw_cc3)par=l3;
+		if(hw_cc3&&hw_cc4)par =round((l3+pwm)/2);
+		else if(hw_cc4||hw_cc3||hw_cc5) par=pwm;//中间值
 
-//		if(hw_cc5)par=r1;
+		//if(hw_cc5)par=r1;
 
-//		if(hw_cc5&&hw_cc6)par =round((r1+r2)/2);
-else
-		if(hw_cc6&&(!hw_cc1))par =r3;
+		if(hw_cc5&&hw_cc6)par =round((r1+r2)/2);
 
-//		if(hw_cc6&&hw_cc7)par =round((r2+r3)/2);
+		//if(hw_cc6)par =r3;
 
-		if(hw_cc7&&(!hw_cc1))par=r3;
-//		if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
+		//if(hw_cc6&&hw_cc7)par =round((r2+r3)/2);
+		else if(hw_cc7||hw_cc6)par=r3;
+		//if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
 time=0;
 		}
 if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
@@ -174,11 +179,11 @@ if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
 #endif
 		u8 e;
 		e=fabs(par-pwm);
-		if(e<=60){
+		if(e<=30){
 			k=k1;
-		}else if((e>150)&&(e<=200)){
+		}else if((e>30)&&(e<=70)){
 			k=k2;
-		}else if ((e>200)&&(e <= 255)){
+		}else if ((e>70)&&(e <= 100)){
 			k=k3;
 		}else {
 		k=k4;
@@ -186,16 +191,19 @@ if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
 
 //k=1;
 /*计算输出pwm*/
-		if(par<(pwm-10))
+		if(par<(pwm-1))
 			{
 			par = par +k;
-		}else if(par>(pwm+10))
+		}else if(par>(pwm+1))
 			{
 			par = par -k;
 		}else
 			{
-			par = pwm;
+				if(pre>(pwm+1)) {par = pwm-d*10;}
+				else if (pre<(pwm-1)){par = pwm+d*10;}
+				else par =pwm;
 		}
-			if((par<500)||(par>1600))par =pwm;
+			pre =par;
+			if((par<700)||(par>1200))par =pwm;
 	TIM_SetCompare1(TIM1,par);
 }
