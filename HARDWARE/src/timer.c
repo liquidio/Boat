@@ -3,29 +3,14 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
-#define HAI//定义使用哪艘船的参数
-//#define DEBUG
-#ifdef DEBUG
-u8 blue;
-u8 pwm=118;//中间值pwm
-u8 l1,
-	l2,
-	l3,
-	r1,
-	r2,
-	r3;
-u8 k1=1,k2=1,k3=1,k4=1;
-#endif
+#define HUANG//定义使用哪艘船的参数
 
 #ifdef HUANG
-u16 pwm=800;//中间值pwm
-u16 l1=550,
-	l2=600,
-	l3=700,
-	r1=850,
-	r2=910,
-	r3=1000;
-u8 k1=1,k2=1,k3=2,k4=4;
+u16 mid=800;//中间值pwm
+u16 left=550,right=1000;
+u8 k1=5,k2=10,k3=15,k4=20;
+u16 s1=70,s2=150,s3=300;
+u16 k,pwm,par=800;
 #endif
 
 
@@ -79,7 +64,6 @@ u8 k1=1,k2=1,k3=1,k4=1;
 
 #endif
 
-u16 par=0,k=0,pwm;//鑸垫満杞姩閲忓拰姣斾緥绯绘暟
 
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
@@ -122,16 +106,16 @@ void TIM4_IRQHandler(void)   //TIM3中断
 }
 
 void control(void){
-	#ifndef DEBUG
 		if(hw_cc4)pwm=mid;
+	else
 		if(hw_cc1)pwm=left;
+	else
 		if(hw_cc7)pwm=right;
 		hw_cc1=0;
 		hw_cc7=0;
 			hw_cc4=0;
-#endif
 /*确定哪一段的比例系数*/
-		//*已经 #define HAI*/
+		//*已经 #define HUANG*/
 		if(fabs(par-pwm)<=s1){
 			k=k1;
 		}else if((fabs(par-pwm)>s1)&&(fabs(par-pwm)<=s2)){
@@ -143,10 +127,10 @@ void control(void){
 		}
 
 /*计算输出pwm*/
-		if(par<(pwm-1))
+		if(par<=(pwm-1))
 			{
 			par = par +k;
-		}else if(par>(pwm+1))
+		}else if(par>=(pwm+1))
 			{
 			par = par -k;
 		}else

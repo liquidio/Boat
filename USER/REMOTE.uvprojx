@@ -415,6 +415,11 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\src\timer.c</FilePath>
             </File>
+            <File>
+              <FileName>ano_y.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\src\ano_y.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

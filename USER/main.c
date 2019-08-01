@@ -5,14 +5,24 @@
 #include "timer.h" 
 #include "usart.h"
 #include "pwm.h"
+#include "ano_y.h"
+#define HUANG
+//#define DEBUG
 
-#define HAI
-
+extern u8 k1,k2,k3,k4;
+extern u16 par,pwm;
+extern u16 s1,s2,s3;
+#ifdef DEBUG
+extern float KP_ANO_Y,KI_ANO_Y,KD_ANO_Y;
+extern float KP_ANO_Y1,KI_ANO_Y1,KD_ANO_Y1;
+extern float KP_ANO_Y2,KI_ANO_Y2,KD_ANO_Y2;
+#endif
  int main(void)
  {
+	 
 	delay_init();
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);// 2	  
-	//uart_init(9600);	 	
+	uart_init(115200);	 	
 	LED_Init();		  		//led初始化
 	TIM1_PWM_Init(14399,99);
 	 Remote_Init();			//红外接收初始化
@@ -38,5 +48,18 @@
 	#endif
 	while(1)
 	{	
+#ifdef DEBUG
+		mpu6050_send_data(0XF1,pwm,par,0,0,0,0);
+		mpu6050_send_data(0XF2,k1,k2,k3,k4,0,0);
+		mpu6050_send_data(0XF3,s1,s2,s3,0,0,0);
+		//ANO_DT_send_data(0XF2,(int)k1,0,0,0,0,0);
+//		if(KP_ANO_Y){k1 = KP_ANO_Y;}
+//		if(KI_ANO_Y){k2 = KI_ANO_Y;}
+//		if(KD_ANO_Y){k3 = KD_ANO_Y;}
+//		if(KP_ANO_Y1){k4 = KP_ANO_Y1;}
+//		if(KI_ANO_Y1){s1 = KI_ANO_Y1;}
+//		if(KD_ANO_Y1){s2 = KI_ANO_Y1;}
+//		if(KP_ANO_Y2){s3 = KP_ANO_Y2;}
+#endif
 	}
 	}
