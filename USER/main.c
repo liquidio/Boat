@@ -7,7 +7,7 @@
 #include "pwm.h"
 #include "ano_y.h"
 #define HUANG
-//#define DEBUG
+#define DEBUG
 
 extern u8 k1,k2,k3,k4;
 extern u16 par,pwm;
