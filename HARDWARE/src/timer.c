@@ -11,6 +11,15 @@ u16 left=550,right=1000;
 u8 k1=5,k2=10,k3=15,k4=20;
 u16 s1=70,s2=150,s3=300;
 u16 k,pwm,par=800;
+
+/*状态标识
+0001左边收到
+0010右边收到
+0100前方位置的左阈值，
+1000前方位置的右阈值，
+*/
+u8 pre;
+u8 yu,yu1;//左右阈值；
 #endif
 
 
@@ -97,46 +106,82 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 
 void TIM4_IRQHandler(void)   //TIM3中断
 {
+	if(hw_cc4)LED1=0;
+	else LED1=1;
 	
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) //检查指定的TIM中断发生与否:TIM 中断源 
 		{
+	//start@矫正到中间{		
+		if(hw_cc1&&!hw_cc4&&!hw_cc7){//左边有信号
+			pwm=left;
+			pre &=0xfd;//标志左边，清除右边
 			control();
-	TIM_ClearFlag(TIM4, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源
+			}
+		
+		if(!hw_cc1 && !hw_cc4 && hw_cc7){
+			pwm=right;
+			pre &=0xfe;//标志右边，清除左边
+			control();
+		}
+		
+		if(hw_cc7&&hw_cc1){//左右两边都收到的话，选左边；
+			pwm=left;
+			control();
+		}
+		//end@矫正到}
+		
+//		/*船从初始位置到达目的地，不是直线行驶。而是蛇行，改变参数控制蛇行幅度。
+//		稳定状态下，船在一个模块的可检测范围内左右摆动前行
+//		*/
+		//start@减少蛇形幅度{//	系数k1,k2
+		if(!hw_cc1 && !hw_cc7 && hw_cc4){
+			if(pre&0x1){//上一个接收到的位置左
+				pwm=mid*k1;
+				pre=0x4;
+				control();
+			}else if(pre&0x2){//上一个接收到的位置右
+				pwm=mid*k2;
+				pre=0x8;
+				control();
+			}else{
+				pwm=mid;
+				control();
+			}
+		}
+		//stop@减少蛇形幅度}
 	}
+		
+	
+TIM_ClearFlag(TIM4, TIM_IT_Update);  //清除TIMx的中断待处理位:TIM 中断源
 }
 
 void control(void){
-		if(hw_cc4)pwm=mid;
-	else
-		if(hw_cc1)pwm=left;
-	else
-		if(hw_cc7)pwm=right;
-		hw_cc1=0;
-		hw_cc7=0;
-			hw_cc4=0;
 /*确定哪一段的比例系数*/
 		//*已经 #define HUANG*/
 		if(fabs(par-pwm)<=s1){
-			k=k1;
-		}else if((fabs(par-pwm)>s1)&&(fabs(par-pwm)<=s2)){
 			k=k2;
-		}else if ((fabs(par-pwm)>s2)&&(fabs(par-pwm)<= s3)){
+		}else
 			k=k3;
-		}else {
-		k=k4;
-		}
-
-/*计算输出pwm*/
-		if(par<=(pwm-1))
+		
+/*控制转舵速度，系数K*/
+		if(par<=(pwm-k))
 			{
 			par = par +k;
-		}else if(par>=(pwm+1))
+		}else if(par>=(pwm+k))
 			{
 			par = par -k;
 		}else
 			{
 			par = pwm;
-		}
+		}	
+	if(par<=left)par =left;//阈值控制
+	if(par>=right)par=right;
+		
 	TIM_SetCompare1(TIM1,par);
+		
+	hw_cc1=0;//清楚信号接收到的状态
+	hw_cc7=0;
+	hw_cc4=0;
+	return;
 }
 
