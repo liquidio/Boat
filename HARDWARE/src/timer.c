@@ -63,6 +63,7 @@ u8 k1=1,k2=1,k3=1,k4=0;//分段的比例系数
 #ifdef HAI //海鹰
 u16 mid = 1030,left=750,right=1300;
 u8 k1=10,k2=15,k3=20,k4=50;//分段的比例系数
+u16 s3=300,s2=150,s1=70;
 #endif
 
 
@@ -130,18 +131,17 @@ void control(void){
 			hw_cc4=0;
 #endif
 /*确定哪一段的比例系数*/
-
-		if(fabs(par-pwm)<=100){
+		//*已经 #define HAI*/
+		if(fabs(par-pwm)<=s1){
 			k=k1;
-		}else if((fabs(par-pwm)>100)&&(fabs(par-pwm)<=150)){
+		}else if((fabs(par-pwm)>s1)&&(fabs(par-pwm)<=s2)){
 			k=k2;
-		}else if ((fabs(par-pwm)>150)&&(fabs(par-pwm)<= 300)){
+		}else if ((fabs(par-pwm)>s2)&&(fabs(par-pwm)<= s3)){
 			k=k3;
 		}else {
 		k=k4;
 		}
 
-//k=1;
 /*计算输出pwm*/
 		if(par<(pwm-1))
 			{
@@ -153,7 +153,6 @@ void control(void){
 			{
 			par = pwm;
 		}
-			if((par<500)||(par>1600))par =pwm;
 	TIM_SetCompare1(TIM1,par);
 }
 
