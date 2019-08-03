@@ -21,8 +21,8 @@
 #define RDATA4	PAin(6)
 #define RDATA5 	PAin(7)
 #define RDATB6	PBin(0)
-#define RDATB7 	PBin(1)
-#define RDATB8 	PBin(6)
+//#define RDATB7 	PBin(1)
+//#define RDATB8 	PBin(6)
 //红外遥控识别码(ID),每款遥控器的该值基本都不一样,但也有一样的.
 //我们选用的遥控器识别码为0
 //#define REMOTE_ID 0      		   

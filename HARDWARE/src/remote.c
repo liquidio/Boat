@@ -291,7 +291,6 @@ void TIM3_IRQHandler(void){
 		cc5_more++;
 		cc6_more++;
 		cc7_more++;
-		cc8_more++;
 		TIM_ClearFlag(TIM3,TIM_IT_Update);	    
 	}
 	if(TIM_GetITStatus(TIM3,TIM_IT_CC1)!=RESET)
@@ -326,6 +325,8 @@ void TIM3_IRQHandler(void){
 		TIM_ClearFlag(TIM3,TIM_IT_CC1);
 	}	
 	else
+		
+	
  	if(TIM_GetITStatus(TIM3,TIM_IT_CC2)!=RESET)
 	{	  
 		if(RDATA5)//上升沿捕获
@@ -358,6 +359,8 @@ void TIM3_IRQHandler(void){
 		TIM_ClearFlag(TIM3,TIM_IT_CC2);
 	}
 else
+	
+
 	if(TIM_GetITStatus(TIM3,TIM_IT_CC3)!=RESET)
 	{	  
 		if(RDATB6)//上升沿捕获
@@ -389,37 +392,5 @@ else
 				}		else	{hw_cc7=0;}			 
 		}	
 		TIM_ClearFlag(TIM3,TIM_IT_CC3);
-	}else
-		if(TIM_GetITStatus(TIM3,TIM_IT_CC4)!=RESET)
-	{
-		if(RDATB7)//上升沿捕获
-		{
-			TIM_OC4PolarityConfig(TIM3,TIM_ICPolarity_Falling);		//CC1P=1 设置为下降沿捕获				
-	    cc8_more=0;
-			Dval_in7=TIM_GetCapture4(TIM3);	
-
-		}else //下降沿捕获
-		{			
-  		 Dval7=cc8_more*10000+TIM_GetCapture4(TIM3)-Dval_in7;//读取CCR1也可以清CC1IF标志位
-			 TIM_OC4PolarityConfig(TIM3,TIM_ICPolarity_Rising); //CC4P=0	设置为上升沿捕获
-
-				if(Dval7>300&&Dval7<800)		//560为标准值
-				{
-					hw_cc8=1;
-				}			else			 
-				if(Dval7>1400&&Dval7<1800)		//为标准值
-				{
-					hw_cc8=1;
-				}				else		 
- 				if(Dval7>4200&&Dval7<4700)		//4500为标准值4.5ms
-				{
-					hw_cc8=1;
-				}		else
-				if(Dval7>2000&&Dval7<2600)		//4500为标准值4.5ms
-				{
-					hw_cc8=1;
-				}		else	{hw_cc8=0;}			 
-		}	
-		TIM_ClearFlag(TIM3,TIM_IT_CC4);
-	}	
+	}
 }

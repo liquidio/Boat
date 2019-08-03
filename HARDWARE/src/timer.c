@@ -22,8 +22,6 @@ double k,pwm=800,par=800;
 1000前方位置的右阈值，
 */
 u8 pre;
-u8 yu,yu1;//左右阈值；
-u8 pre_mid;//bool
 #endif
 
 
@@ -119,76 +117,78 @@ void TIM4_IRQHandler(void)   //TIM3中断
 	}
 TIM_ClearFlag(TIM4, TIM_IT_Update);  //清除TIMx的中断待处理位:TIM 中断源
 }
-
+u8 flag =1;
+u8 time0=0,time1=0;
+u8 Location=0x00;//初始化当前位置
+u8 pre_Location=0x02;//初始化上一次的位置为中位
 void control(void){
-	//start@矫正到中间{
-		if(hw_cc1){//左边有信号
-			pwm=left;
-			pre_mid =0;
-			pre &=0xfd;//标志左边，清除右边
-			}
-		if(hw_cc4){//左边有信号
-			pwm=left;
-			pre_mid =0;
-			pre &=0xfd;//标志左边，清除右边
-			}
-		if(hw_cc7){
-			pwm=right;
-			pre_mid =0;
-			pre &=0xfe;//标志右边，清除左边
+	//确定PWM的值、位置状态
+	flag=1;//每次只进入一个信号
+	if(hw_cc1 && flag){//左边有信号
+		pwm=left;
+		flag=0;
+		Location=0x04;//标志左边
+	}
+	if(hw_cc7 && flag){//右边有信号
+		pwm=right;
+		flag=0;
+		Location=0x01;//标志右边
+	}
+	if(hw_cc4 && flag){//中位有信号
+		pwm=mid;
+		flag=0;
+		Location=0x02;//标志中位
+	}
+	pre_Location=Location;//保存上一次的位置状态
+	//确定调节系数k,自己可设分段
+	if(fabs(par-pwm)<=s1){
+		k=k3;
+	}else{
+		k=k4;
+	}
+	
+	//确定变化的状态,限制PWM的值
+	if(Location==0x04 && pre_Location==0x02){//中位变左,取右边的临界值
+		time1=0;
+		time0++;
+		if(time0<5){//前50ms内,每次+10
+			par +=10;
+		}else if(time0<50 &&time0>=5){//前500ms内,每次+5
+			par +=5;
+		}else{//大于50ms内,每次+2
+			time0=50;
+			par +=2;
 		}
-		//end@矫正到}
-
-//		/*船从初始位置到达目的地，不是直线行驶。而是蛇行，改变参数控制蛇行幅度。
-//		稳定状态下，船在一个模块的可检测范围内左右摆动前行
-//		*/
-		//start@阈值控制{//	系数k1,k2
-		if(hw_cc4){
-			pre_mid =1;
-			if(pre&0x4){//上一个接收到的位置左
-				pwm=mid*k1;
-			}else if(pre&0x8){//上一个接收到的位置右
-				pwm=mid*k2;
-			}
+	}else if(Location==0x01 && pre_Location==0x02){//中位变右，取左边的临界值
+		time0=0;
+		time1=time1+1;
+		if(time0<5){//前50ms内,每次-10
+			par=par-10;
+		}else if(time1<50 &&time1>=5){//前500ms内,每次-5
+			par=par-5;
+		}else{//大于500ms内,每次-2
+			time1=50;
+			par=par-2;
 		}
-		if(!hw_cc4 && pre_mid){//中间信号消失那一刻，取阈值
-				if(par>pwm) pwm = yu;
-				if(par<pwm) pwm =yu1;
-				pre_mid =0;
-		}
-		//stop@阈值控制}
-		
-		if(hw_cc7&&hw_cc1){//左右两边都收到的话，选左边；
-			pwm=left;
-			pre_mid =0;
-		}
-
-		
-/*确定哪一段的比例系数*/
-		//*已经 #define HUANG*/
-		if(fabs(par-pwm)<=s1){
-			k=k3;
-		}else
-			k=k4;
-		
-/*控制转舵速度，系数K*/
-		if(par<=(pwm-k))
-			{
+	}else{//其他状态按正常调节
+		time0=0;
+		time1=0;
+		if(par<=(pwm-k)){
 			par = par +k;
-		}else if(par>=(pwm+k))
-			{
+		}else if(par>=(pwm+k)){
 			par = par -k;
-		}else
-			{
+		}else{
 			par = pwm;
-		}	
-	if(par<=left)par =left;//阈值控制
+		}
+	}
+				
+	//限制par的范围
+	if(par<=left)par =left;
 	if(par>=right)par=right;
-		
+	//输出	
 	TIM_SetCompare1(TIM1,round(par));
-		
-	hw_cc1=0;//清楚信号接收到的状态
+	//清除接收到的信号状态
+	hw_cc1=0;
 	hw_cc7=0;
 	hw_cc4=0;
 }
-

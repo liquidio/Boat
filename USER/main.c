@@ -19,7 +19,6 @@ extern float KP_ANO_Y2,KI_ANO_Y2,KD_ANO_Y2;
 #endif
  int main(void)
  {
-	 
 	delay_init();
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);// 2	  
 	uart_init(115200);	 	
