@@ -3,29 +3,17 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
-#define HAI//定义使用哪艘船的参数
-//#define DEBUG
-#ifdef DEBUG
-u8 blue;
-u8 pwm=118;//中间值pwm
-u8 l1,
-	l2,
-	l3,
-	r1,
-	r2,
-	r3;
-u8 k1=1,k2=1,k3=1,k4=1;
-#endif
+#define HUANG//定义使用哪艘船的参数
 
 #ifdef HUANG
-u16 pwm=800;//中间值pwm
+double mid=800,pwm=800,par=800;//中间值pwm
 u16 l1=550,
 	l2=600,
 	l3=700,
 	r1=850,
 	r2=910,
 	r3=1000;
-u8 k1=1,k2=1,k3=2,k4=4;
+u8 k,k3=10,k4=15,s1=100;
 #endif
 
 
@@ -68,17 +56,8 @@ u16 l1=1150,
 	r1=1000,
 	r2=980 ,
 	r3=900;
-	
-//u8 k1=1,k2=2,k3=5,k4=5;
-//u8 k1=2,k2=4,k3=6,k4=8;
-//u8 k1=10,k2=10,k3=5,k4=5;
-//u8 k1=5,k2=5,k3=10,k4=10;
-//u8 k1=20,k2=20,k3=20,k4=20;
-//u8 k1=10,k2=10,k3=10,k4=10;
-//u8 k1=1,k2=1,k3=5,k4=10;
-//u8 k1=1,k2=1,k3=1,k4=1;//分段的比例系数
 u8 k1=8,k2=6,k3=3,k4=1,d=1;
-//u8 k1=0,k2=0,k3=0,k4=0;
+
 #endif
 
 
@@ -93,9 +72,6 @@ u16 l1=750,
 u8 k1=1,k2=1,k3=1,k4=1;
 
 #endif
-
-u16 par=0,pre=0,k=0;//鑸垫満杞姩閲忓拰姣斾緥绯绘暟
-u16 time=0;
 
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
@@ -130,80 +106,101 @@ void TIM4_IRQHandler(void)   //TIM3中断
 {
 	
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) //检查指定的TIM中断发生与否:TIM 中断源 
-		{time++;
+		{
 			control();
 	TIM_ClearFlag(TIM4, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源
 	}
 }
-
+u16 pre;
+u8 time0,time1,time2,time3,time4,time5,time6,time7,time8,time9,time10;
 void control(void){
-	#ifndef DEBUG
-if(time==2){
-		//if(hw_cc3&&hw_cc4&&hw_cc5){par=pwm;}
-		//if(hw_cc1&&hw_cc2&&hw_cc3)par=l2;	
-		if(hw_cc1||hw_cc2)par=l1;
-	else
-		//if(hw_cc1&&hw_cc2)par=round((l1+l2)/2);
-
-	//	if(hw_cc2&&hw_cc3)par=round((l2+l3)/2);
-
-	//	if(hw_cc3)par=l3;
-		if(hw_cc3&&hw_cc4)par =round((l3+pwm)/2);
-		else if(hw_cc4||hw_cc3||hw_cc5) par=pwm;//中间值
-
-		//if(hw_cc5)par=r1;
-
-		if(hw_cc5&&hw_cc6)par =round((r1+r2)/2);
-
-		//if(hw_cc6)par =r3;
-
-		//if(hw_cc6&&hw_cc7)par =round((r2+r3)/2);
-		else if(hw_cc7||hw_cc6)par=r3;
-		//if(hw_cc5&&hw_cc6&&hw_cc7)par=r2;
-time=0;
+	
+		if(hw_cc3&&hw_cc4&&hw_cc5){
+			if(time3>=5){
+				pwm=mid;time3=0;}
+			time3++;
 		}
-if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){par=pwm;}
+		if(hw_cc1){
+			if(time4>=5){
+				pwm=l1;time4=0;}
+			time4++;
+		}
+		if(hw_cc2){
+			if(time5>=5){
+				pwm=l2;time5=0;}
+			time5++;
+		}
+		if(hw_cc3){
+			if(time6>=5){
+				pwm=l3;time6=0;}
+			time6++;
+		}
+		if(hw_cc4){
+			if(time7>=5){
+				pwm=mid;time7=0;}
+			time7++;
+		}
+		if(hw_cc5){
+			if(time8>=5){
+				pwm=r1;time8=0;}
+			time8++;
+		}
+		if(hw_cc6){
+			if(time9>=5){
+				pwm=r2;time9=0;}
+			time9++;
+		}
+		if(hw_cc7){
+			if(time10>=5){
+				pwm=r3;time10=0;}
+			time10++;
+		}
+		if((hw_cc1||hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6||hw_cc7)&& !hw_cc4){
+			if(time2>=5){
+				pwm=l1;time2=0;}
+			time2++;
+		}
+		if(hw_cc4&&(hw_cc5||hw_cc6||hw_cc7)){
+			if(time1>=10){
+				pwm=mid;time1=0;}
+			time1++;
+		}
+	if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){
+		if(time0>=10){
+			pwm=mid;time0=0;
+		}
+		time0++;
+	}
+	
 		hw_cc1=0;
 		hw_cc2=0;
 		hw_cc3=0;
-			hw_cc4=0;
-			hw_cc5=0;
-			hw_cc6=0;
-			hw_cc7=0;
-#endif
+		hw_cc4=0;
+		hw_cc5=0;
+		hw_cc6=0;
+		hw_cc7=0;
 /*确定哪一段的比例系数*/
-#ifdef DEBUG
-			par = blue;
-			//k1,k2,k3
-			//l1,l2,l3
-#endif
-		u8 e;
-		e=fabs(par-pwm);
-		if(e<=30){
-			k=k1;
-		}else if((e>30)&&(e<=70)){
-			k=k2;
-		}else if ((e>70)&&(e <= 100)){
+
+		if(fabs(par-pwm)<=s1){
 			k=k3;
 		}else {
-		k=k4;
+			k=k4;
 		}
-
-//k=1;
 /*计算输出pwm*/
-		if(par<(pwm-1))
+		if(par<=(pwm-k))
 			{
 			par = par +k;
-		}else if(par>(pwm+1))
+		}else if(par>=(pwm+k))
 			{
 			par = par -k;
 		}else
 			{
-				if(pre>(pwm+1)) {par = pwm-d*10;}
-				else if (pre<(pwm-1)){par = pwm+d*10;}
-				else par =pwm;
+			par =pwm;
 		}
-			pre =par;
-			if((par<700)||(par>1200))par =pwm;
-	TIM_SetCompare1(TIM1,par);
+		par =(pre*6+par*4)/10;
+		pre = par;
+			if(par<l1)par=l1;
+			if(par>r3)par =r3;
+
+	TIM_SetCompare1(TIM1,round(par));
 }

@@ -177,7 +177,12 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>hw_cc9</ItemText>
+          <ItemText>pwm</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>par</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
