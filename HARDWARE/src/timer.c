@@ -9,11 +9,11 @@
 u16 mid=800;//中间值pwm
 u16 left=550,right=1000;
 
-double k1=5,k2=10,k3=5,k4=10;
+double k1=5,k2=10,k3=2,k4=4;
 
 u16 s1=70;
 
-double k,pwm,par=800;
+double k,pwm=800,par=800;
 
 /*状态标识
 0001左边收到
@@ -115,42 +115,45 @@ void TIM4_IRQHandler(void)   //TIM3中断
 	
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) //检查指定的TIM中断发生与否:TIM 中断源 
 		{
-	//start@矫正到中间{		
-		if(hw_cc1&&!hw_cc4&&!hw_cc7){//左边有信号
+			control();
+	}
+TIM_ClearFlag(TIM4, TIM_IT_Update);  //清除TIMx的中断待处理位:TIM 中断源
+}
+
+void control(void){
+	//start@矫正到中间{
+		if(hw_cc1){//左边有信号
 			pwm=left;
 			pre_mid =0;
 			pre &=0xfd;//标志左边，清除右边
-			control();
 			}
-		
-		if(!hw_cc1 && !hw_cc4 && hw_cc7){
+		if(hw_cc4){//左边有信号
+			pwm=left;
+			pre_mid =0;
+			pre &=0xfd;//标志左边，清除右边
+			}
+		if(hw_cc7){
 			pwm=right;
 			pre_mid =0;
 			pre &=0xfe;//标志右边，清除左边
-			control();
 		}
-		
-
 		//end@矫正到}
-		
+
 //		/*船从初始位置到达目的地，不是直线行驶。而是蛇行，改变参数控制蛇行幅度。
 //		稳定状态下，船在一个模块的可检测范围内左右摆动前行
 //		*/
 		//start@阈值控制{//	系数k1,k2
-		if(!hw_cc1 && !hw_cc7 && hw_cc4){
+		if(hw_cc4){
 			pre_mid =1;
 			if(pre&0x4){//上一个接收到的位置左
 				pwm=mid*k1;
-				control();
 			}else if(pre&0x8){//上一个接收到的位置右
 				pwm=mid*k2;
-				control();
 			}
 		}
 		if(!hw_cc4 && pre_mid){//中间信号消失那一刻，取阈值
 				if(par>pwm) pwm = yu;
 				if(par<pwm) pwm =yu1;
-				control();
 				pre_mid =0;
 		}
 		//stop@阈值控制}
@@ -158,16 +161,9 @@ void TIM4_IRQHandler(void)   //TIM3中断
 		if(hw_cc7&&hw_cc1){//左右两边都收到的话，选左边；
 			pwm=left;
 			pre_mid =0;
-			control();
 		}
-	}
-	//
-	
-	
-TIM_ClearFlag(TIM4, TIM_IT_Update);  //清除TIMx的中断待处理位:TIM 中断源
-}
 
-void control(void){
+		
 /*确定哪一段的比例系数*/
 		//*已经 #define HUANG*/
 		if(fabs(par-pwm)<=s1){
@@ -194,6 +190,5 @@ void control(void){
 	hw_cc1=0;//清楚信号接收到的状态
 	hw_cc7=0;
 	hw_cc4=0;
-	return;
 }
 
