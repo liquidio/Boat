@@ -9,11 +9,11 @@
 u16 mid=800;//中间值pwm
 u16 left=550,right=1000;
 
-u8 k1=5,k2=10,k3=5,k4=10;
+double k1=5,k2=10,k3=5,k4=10;
 
 u16 s1=70;
 
-u16 k,pwm,par=800;
+double k,pwm,par=800;
 
 /*状态标识
 0001左边收到
@@ -189,7 +189,7 @@ void control(void){
 	if(par<=left)par =left;//阈值控制
 	if(par>=right)par=right;
 		
-	TIM_SetCompare1(TIM1,par);
+	TIM_SetCompare1(TIM1,round(par));
 		
 	hw_cc1=0;//清楚信号接收到的状态
 	hw_cc7=0;
