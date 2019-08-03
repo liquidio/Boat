@@ -9,7 +9,7 @@
 u16 mid=800;//中间值pwm
 u16 left=550,right=1000;
 
-double k1=5,k2=10,k3=2,k4=4;
+double k1=1.1,k2=0.9,k3=2,k4=4;
 
 u16 s1=70;
 
@@ -139,6 +139,18 @@ void control(void){
 		flag=0;
 		Location=0x02;//标志中位
 	}
+	if(Location==0x02 && pre_Location==0x04){
+		pwm=mid*k1;
+	}
+	else if(Location==0x02 && pre_Location==0x01){
+		pwm=mid*k2;
+	}
+	if(Location!=0x02 && pre_Location==0x02){
+		if(par>mid){
+				pwm = mid*k2;
+		}else
+				pwm =mid*k1;
+	}
 	pre_Location=Location;//保存上一次的位置状态
 	//确定调节系数k,自己可设分段
 	if(fabs(par-pwm)<=s1){
@@ -146,42 +158,15 @@ void control(void){
 	}else{
 		k=k4;
 	}
-	
-	//确定变化的状态,限制PWM的值
-	if(Location==0x04 && pre_Location==0x02){//中位变左,取右边的临界值
-		time1=0;
-		time0++;
-		if(time0<5){//前50ms内,每次+10
-			par +=10;
-		}else if(time0<50 &&time0>=5){//前500ms内,每次+5
-			par +=5;
-		}else{//大于50ms内,每次+2
-			time0=50;
-			par +=2;
-		}
-	}else if(Location==0x01 && pre_Location==0x02){//中位变右，取左边的临界值
-		time0=0;
-		time1=time1+1;
-		if(time0<5){//前50ms内,每次-10
-			par=par-10;
-		}else if(time1<50 &&time1>=5){//前500ms内,每次-5
-			par=par-5;
-		}else{//大于500ms内,每次-2
-			time1=50;
-			par=par-2;
-		}
-	}else{//其他状态按正常调节
-		time0=0;
-		time1=0;
-		if(par<=(pwm-k)){
+
+
+	if(par<=(pwm-k)){
 			par = par +k;
 		}else if(par>=(pwm+k)){
 			par = par -k;
 		}else{
 			par = pwm;
-		}
-	}
-				
+		}		
 	//限制par的范围
 	if(par<=left)par =left;
 	if(par>=right)par=right;
