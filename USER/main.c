@@ -18,9 +18,9 @@
 	//uart_init(9600);	 	
 	LED_Init();		  		//led初始化
 	TIM1_PWM_Init(14399,99);
+
 	 Remote_Init();			//红外接收初始化
-	 TIM4_Int_Init(1000,720-1);	
-//	delay_ms(600);
+	 TIM4_Int_Init(5000,720-1);	
 	#ifdef HUANG
 	 TIM_SetCompare1(TIM1,800);
 	#endif
@@ -43,9 +43,7 @@
 	{
 #ifdef DEBUG
 		mpu6050_send_data(0XF1,pwm,par,0,0,0,0);
-
 		mpu6050_send_data(0XF2,k1,k2,k3,k4,0,0);
-
 		mpu6050_send_data(0XF3,s1,0,0,0,0,0);
 		delay_ms(80);
 		//ANO_DT_send_data(0XF2,(int)k1,0,0,0,0,0);
