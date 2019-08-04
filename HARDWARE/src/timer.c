@@ -13,7 +13,8 @@ u16 l1=550,
 	r1=850,
 	r2=910,
 	r3=1000;
-u8 k,k3=10,k4=15,s1=100;
+double k,k3=10,k4=15;
+u16 s1=100;
 #endif
 
 
@@ -112,64 +113,54 @@ void TIM4_IRQHandler(void)   //TIM3ÖÐ¶Ï
 	}
 }
 u16 pre;
-u8 time0,time1,time2,time3,time4,time5,time6,time7,time8,time9,time10;
+u8 time[11];
+void clear_timex(){
+	u8 x;
+	for (x=0;x<11;x++){
+		time[x] = 0;
+	}
+}
+void scan(u8* time,u8 x,double direct){
+	if(*(time+x)>=8){
+		pwm = direct;
+		clear_timex();
+	}
+	(*(time+x))++;
+}
 void control(void){
 	
 		if(hw_cc3&&hw_cc4&&hw_cc5){
-			if(time3>=5){
-				pwm=mid;time3=0;}
-			time3++;
+			scan(time,0,mid);
 		}
 		if(hw_cc1){
-			if(time4>=5){
-				pwm=l1;time4=0;}
-			time4++;
+			scan(time,1,l1);
 		}
 		if(hw_cc2){
-			if(time5>=5){
-				pwm=l2;time5=0;}
-			time5++;
+			scan(time,2,l2);
 		}
 		if(hw_cc3){
-			if(time6>=5){
-				pwm=l3;time6=0;}
-			time6++;
+			scan(time,3,l3);
 		}
 		if(hw_cc4){
-			if(time7>=5){
-				pwm=mid;time7=0;}
-			time7++;
+			scan(time,4,mid);
 		}
 		if(hw_cc5){
-			if(time8>=5){
-				pwm=r1;time8=0;}
-			time8++;
+			scan(time,5,r1);
 		}
 		if(hw_cc6){
-			if(time9>=5){
-				pwm=r2;time9=0;}
-			time9++;
+			scan(time,6,r2);;
 		}
 		if(hw_cc7){
-			if(time10>=5){
-				pwm=r3;time10=0;}
-			time10++;
+			scan(time,7,r3);
 		}
 		if((hw_cc1||hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6||hw_cc7)&& !hw_cc4){
-			if(time2>=5){
-				pwm=l1;time2=0;}
-			time2++;
+			scan(time,8,l1);
 		}
 		if(hw_cc4&&(hw_cc5||hw_cc6||hw_cc7)){
-			if(time1>=10){
-				pwm=mid;time1=0;}
-			time1++;
+			scan(time,9,mid);
 		}
 	if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){
-		if(time0>=10){
-			pwm=mid;time0=0;
-		}
-		time0++;
+		scan(time,10,mid);
 	}
 	
 		hw_cc1=0;
@@ -197,10 +188,11 @@ void control(void){
 			{
 			par =pwm;
 		}
-		par =(pre*6+par*4)/10;
+		par =(pre*6+par*4)/10;//rcÂË²¨£¬±ä
 		pre = par;
-			if(par<l1)par=l1;
-			if(par>r3)par =r3;
+		
+		if(par<l1)par=l1;
+		if(par>r3)par =r3;
 
 	TIM_SetCompare1(TIM1,round(par));
 }
