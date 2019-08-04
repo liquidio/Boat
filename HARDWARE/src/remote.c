@@ -140,6 +140,13 @@ u32 Dval0,Dval_in0,Dval1,Dval_in1,Dval2,Dval_in2,Dval3,Dval_in3,Dval4,Dval_in4,
 //定时器5中断服务程序	 
 u8 cc1_more=0,cc2_more=0,cc3_more=0,cc4_more=0,cc5_more=0,cc6_more=0,cc7_more=0,cc8_more=0;
 u8 hw_cc1=0,hw_cc2=0,hw_cc3=0,hw_cc4=0,hw_cc5=0,hw_cc6=0,hw_cc7=0,hw_cc8=0;
+
+u8 	RmtSta1=0,RmtSta2=0,RmtSta3=0,RmtSta4=0,RmtSta5=0,RmtSta6=0,RmtSta7=0,RmtSta8=0;
+
+u8 HW1_MARK=0,HW2_MARK=0,HW3_MARK=0,HW4_MARK=0,HW5_MARK=0,HW6_MARK=0,HW7_MARK=0,HW8_MARK=0;
+
+void Remote(u8*RmtSta,u8*HW_MARK,u16 Dval,u8* hw_cch);
+
 void TIM2_IRQHandler(void)
 { 		    	 
   if(TIM_GetITStatus(TIM2,TIM_IT_Update)!=RESET)
@@ -148,6 +155,10 @@ void TIM2_IRQHandler(void)
 		cc2_more++;
 		cc3_more++;
 		cc4_more++;
+		if(cc1_more>=2) {cc1_more=0;HW1_MARK=0;}
+		if(cc2_more>=2) {cc2_more=0;HW2_MARK=0;}
+		if(cc3_more>=2) {cc3_more=0;HW3_MARK=0;}
+		if(cc4_more>=2) {cc4_more=0;HW4_MARK=0;}
 		TIM_ClearFlag(TIM2,TIM_IT_Update);	    
 	}
 	if(TIM_GetITStatus(TIM2,TIM_IT_CC1)!=RESET)
@@ -157,29 +168,12 @@ void TIM2_IRQHandler(void)
 			TIM_OC1PolarityConfig(TIM2,TIM_ICPolarity_Falling);		//CC1P=1 设置为下降沿捕获				
 	    cc1_more=0;
 			Dval_in0=TIM_GetCapture1(TIM2);	
+			RmtSta1|=0X10;
 		}else //下降沿捕获
 		{	
-			
   		 Dval0=cc1_more*10000+TIM_GetCapture1(TIM2)-Dval_in0;//读取CCR1也可以清CC1IF标志位
 			 TIM_OC1PolarityConfig(TIM2,TIM_ICPolarity_Rising); //CC4P=0	设置为上升沿捕获
-				if(Dval0>300&&Dval0<800)		//560为标准值
-				{
-					hw_cc1=1;
-				}			else			 
-				if(Dval0>1400&&Dval0<1800)		//为标准值
-				{
-					hw_cc1=1;
-				}		else				 
- 				if(Dval0>4200&&Dval0<4700)		//4500为标准值4.5ms
-				{
-					hw_cc1=1;
-				}	else	
-				if(Dval0>2000&&Dval0<2600)		//4500为标准值4.5ms
-				{
-					hw_cc1=1;
-				}	else
-					{hw_cc1=0;}
-			
+			 Remote(&RmtSta1,&HW1_MARK,Dval0,&hw_cc1);
 		}
 		TIM_ClearFlag(TIM2,TIM_IT_CC1);
 	}	
@@ -191,29 +185,13 @@ void TIM2_IRQHandler(void)
 			TIM_OC2PolarityConfig(TIM2,TIM_ICPolarity_Falling);		//CC1P=1 设置为下降沿捕获				
 	    cc2_more=0;
 			Dval_in1=TIM_GetCapture2(TIM2);	
+			RmtSta2|=0X10;
 		}else//下降沿捕获
 		{	
   		 Dval1=cc2_more*10000+TIM_GetCapture2(TIM2)-Dval_in1;//读取CCR1也可以清CC1IF标志位
 			 TIM_OC2PolarityConfig(TIM2,TIM_ICPolarity_Rising); //CC4P=0	设置为上升沿捕获
  			
-				if(Dval1>300&&Dval1<800)		//560为标准值
-				{
-					hw_cc2=1;
-				}	else					 
-				if(Dval1>1400&&Dval1<1800)		//为标准值
-				{
-					hw_cc2=1;
-				}	else					 
- 				if(Dval1>4200&&Dval1<4700)		//4500为标准值4.5ms
-				{
-					hw_cc2=1;
-				}else
-				if(Dval1>2000&&Dval1<2600)		//4500为标准值4.5ms
-				{
-					hw_cc2=1;
-				}	else{
-					hw_cc2=0;
-			}
+			 Remote(&RmtSta2,&HW2_MARK,Dval1,&hw_cc2);
 		}	
 		TIM_ClearFlag(TIM2,TIM_IT_CC2);
 	}
@@ -225,28 +203,13 @@ else
 			TIM_OC3PolarityConfig(TIM2,TIM_ICPolarity_Falling);		//CC1P=1 设置为下降沿捕获				
 	    cc3_more=0;
 			Dval_in2=TIM_GetCapture3(TIM2);
+			RmtSta3|=0X10;
 		}else//下降沿捕获
 		{			
   		 Dval2=cc3_more*10000+TIM_GetCapture3(TIM2)-Dval_in2;//读取CCR1也可以清CC1IF标志位
 			 TIM_OC3PolarityConfig(TIM2,TIM_ICPolarity_Rising); //CC4P=0	设置为上升沿捕获
 
-				if(Dval2>300&&Dval2<800)		//560为标准值
-				{
-					hw_cc3=1;
-				}else				 
-				if(Dval2>1400&&Dval2<1800)		//为标准值
-				{
-					hw_cc3=1;
-				}	else					 
- 				if(Dval2>4200&&Dval2<4700)		//4500为标准值4.5ms
-				{
-					hw_cc3=1;
-				}	else	
-				if(Dval2>2000&&Dval2<2600)		//4500为标准值4.5ms
-				{
-					hw_cc3=1;
-				}	else	
-					{hw_cc3=0;}
+				 Remote(&RmtSta3,&HW3_MARK,Dval2,&hw_cc3);
 		}	
 		TIM_ClearFlag(TIM2,TIM_IT_CC3);
 	}	
@@ -258,27 +221,12 @@ else
 			TIM_OC4PolarityConfig(TIM2,TIM_ICPolarity_Falling);		//CC1P=1 设置为下降沿捕获				
 	    cc4_more=0;
 			Dval_in3=TIM_GetCapture4(TIM2);	
+			RmtSta4|=0X10;
 		}else//下降沿捕获
 		{			
   		 Dval3=cc4_more*10000+TIM_GetCapture4(TIM2)-Dval_in3;//读取CCR1也可以清CC1IF标志位
 			 TIM_OC4PolarityConfig(TIM2,TIM_ICPolarity_Rising); //CC4P=0	设置为上升沿捕获
- 			
-				if(Dval3>300&&Dval3<800)		//560为标准值
-				{
-					hw_cc4=1;
-				}		else				 
-				if(Dval3>1400&&Dval3<1800)		//为标准值
-				{
-					hw_cc4=1;
-				}		else				 
- 				if(Dval3>4200&&Dval3<4700)		//4500为标准值4.5ms
-				{
-					hw_cc4=1;
-				}		else
-				if(Dval3>2000&&Dval3<2600)		//4500为标准值4.5ms
-				{
-					hw_cc4=1;
-				}	else{hw_cc4=0;}					 
+ 			 Remote(&RmtSta4,&HW4_MARK,Dval3,&hw_cc4);
 		}	
 		TIM_ClearFlag(TIM2,TIM_IT_CC4);
 	}	    
@@ -292,6 +240,10 @@ void TIM3_IRQHandler(void){
 		cc6_more++;
 		cc7_more++;
 		cc8_more++;
+		if(cc5_more>=2) {cc5_more=0;HW5_MARK=0;}
+		if(cc6_more>=2) {cc6_more=0;HW6_MARK=0;}
+		if(cc7_more>=2) {cc7_more=0;HW7_MARK=0;}
+		if(cc8_more>=2) {cc8_more=0;HW8_MARK=0;}
 		TIM_ClearFlag(TIM3,TIM_IT_Update);	    
 	}
 	if(TIM_GetITStatus(TIM3,TIM_IT_CC1)!=RESET)
@@ -301,27 +253,13 @@ void TIM3_IRQHandler(void){
 			TIM_OC1PolarityConfig(TIM3,TIM_ICPolarity_Falling);		//CC1P=1 设置为下降沿捕获				
 	    cc5_more=0;
 			Dval_in4=TIM_GetCapture1(TIM3);	
+			RmtSta5|=0X10;
 		}else //下降沿捕获
 		{			
   		 Dval4=cc5_more*10000+TIM_GetCapture1(TIM3)-Dval_in4;//读取CCR1也可以清CC1IF标志位
 			 TIM_OC1PolarityConfig(TIM3,TIM_ICPolarity_Rising); //CC4P=0	设置为上升沿捕获
  			
-				if(Dval4>300&&Dval4<800)		//560为标准值
-				{
-					hw_cc5=1;
-				}	else					 
-				if(Dval4>1400&&Dval4<1800)		//为标准值
-				{
-					hw_cc5=1;
-				}	else					 
- 				if(Dval4>4200&&Dval4<4700)		//4500为标准值4.5ms
-				{
-					hw_cc5=1;
-				}	else	
-				if(Dval4>2000&&Dval4<2600)		//4500为标准值4.5ms
-				{
-					hw_cc5=1;
-				}		else{hw_cc5=0;}				 
+			 Remote(&RmtSta5,&HW5_MARK,Dval4,&hw_cc5);
 		}	
 		TIM_ClearFlag(TIM3,TIM_IT_CC1);
 	}	
@@ -332,28 +270,14 @@ void TIM3_IRQHandler(void){
 		{
 			TIM_OC2PolarityConfig(TIM3,TIM_ICPolarity_Falling);		//CC1P=1 设置为下降沿捕获				
 	    cc6_more=0;
-			Dval_in5=TIM_GetCapture2(TIM3);	
+			Dval_in5=TIM_GetCapture2(TIM3);
+			RmtSta6|=0X10;
 		}else//下降沿捕获
 		{			
   		 Dval5=cc6_more*10000+TIM_GetCapture2(TIM3)-Dval_in5;//读取CCR1也可以清CC1IF标志位
 			 TIM_OC2PolarityConfig(TIM3,TIM_ICPolarity_Rising); //CC4P=0	设置为上升沿捕获
- 			
-				if(Dval5>300&&Dval5<800)		//560为标准值
-				{
-					hw_cc6=1;
-				}		else				 
-				if(Dval5>1400&&Dval5<1800)		//为标准值
-				{
-					hw_cc6=1;
-				}		else				 
- 				if(Dval5>4200&&Dval5<4700)		//4500为标准值4.5ms
-				{
-					hw_cc6=1;
-				}		else
-				if(Dval5>2000&&Dval5<2600)		//4500为标准值4.5ms
-				{
-					hw_cc6=1;
-				}			else{hw_cc6=0;}			 
+				
+				 Remote(&RmtSta6,&HW6_MARK,Dval5,&hw_cc6);
 		}	
 		TIM_ClearFlag(TIM3,TIM_IT_CC2);
 	}
@@ -365,28 +289,13 @@ else
 			TIM_OC3PolarityConfig(TIM3,TIM_ICPolarity_Falling);		//CC1P=1 设置为下降沿捕获				
 	    cc7_more=0;
 			Dval_in6=TIM_GetCapture3(TIM3);	
-
+			RmtSta7|=0X10;
 		}else //下降沿捕获
 		{			
   		 Dval6=cc7_more*10000+TIM_GetCapture3(TIM3)-Dval_in6;//读取CCR1也可以清CC1IF标志位
 			 TIM_OC3PolarityConfig(TIM3,TIM_ICPolarity_Rising); //CC4P=0	设置为上升沿捕获
 
-				if(Dval6>300&&Dval6<800)		//560为标准值
-				{
-					hw_cc7=1;
-				}			else			 
-				if(Dval6>1400&&Dval6<1800)		//为标准值
-				{
-					hw_cc7=1;
-				}				else		 
- 				if(Dval6>4200&&Dval6<4700)		//4500为标准值4.5ms
-				{
-					hw_cc7=1;
-				}		else
-				if(Dval6>2000&&Dval6<2600)		//4500为标准值4.5ms
-				{
-					hw_cc7=1;
-				}		else	{hw_cc7=0;}			 
+			 Remote(&RmtSta7,&HW7_MARK,Dval6,&hw_cc7);
 		}	
 		TIM_ClearFlag(TIM3,TIM_IT_CC3);
 	}else
@@ -397,29 +306,49 @@ else
 			TIM_OC4PolarityConfig(TIM3,TIM_ICPolarity_Falling);		//CC1P=1 设置为下降沿捕获				
 	    cc8_more=0;
 			Dval_in7=TIM_GetCapture4(TIM3);	
-
+			RmtSta8|=0X10;
 		}else //下降沿捕获
 		{			
   		 Dval7=cc8_more*10000+TIM_GetCapture4(TIM3)-Dval_in7;//读取CCR1也可以清CC1IF标志位
 			 TIM_OC4PolarityConfig(TIM3,TIM_ICPolarity_Rising); //CC4P=0	设置为上升沿捕获
 
-				if(Dval7>300&&Dval7<800)		//560为标准值
-				{
-					hw_cc8=1;
-				}			else			 
-				if(Dval7>1400&&Dval7<1800)		//为标准值
-				{
-					hw_cc8=1;
-				}				else		 
- 				if(Dval7>4200&&Dval7<4700)		//4500为标准值4.5ms
-				{
-					hw_cc8=1;
-				}		else
-				if(Dval7>2000&&Dval7<2600)		//4500为标准值4.5ms
-				{
-					hw_cc8=1;
-				}		else	{hw_cc8=0;}			 
+				 Remote(&RmtSta8,&HW8_MARK,Dval7,&hw_cc8);
 		}	
 		TIM_ClearFlag(TIM3,TIM_IT_CC4);
 	}	
 }
+
+int hw_xh=0,hw_ch0=0;
+
+void Remote(u8*RmtSta,u8*HW_MARK,u16 Dval,u8* hw_cch)
+{
+		 if(*RmtSta&0X10)
+			 {
+				 if(*RmtSta&0X80)
+				 {
+					if(Dval>500&&Dval<1500)
+					{
+							(*hw_cch)++;
+						  if(*hw_cch==20)  {*HW_MARK=1;*RmtSta&=0X7F;*hw_cch=0;}
+					}
+					else  
+					{
+						*HW_MARK=0;
+						hw_cch=0;
+						*RmtSta&=0X7F;
+					}
+				 }
+				 else if(Dval>3800&&Dval<4200)
+				 {
+						*RmtSta|=0X80;
+				 }
+				 else   
+				 {
+					 *HW_MARK=0;
+				 }
+			 }
+}
+
+
+
+

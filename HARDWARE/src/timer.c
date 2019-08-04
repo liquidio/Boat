@@ -3,17 +3,18 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
+
 #define HUANG//定义使用哪艘船的参数
 
 #ifdef HUANG
-double mid=800,pwm=800,par=800;//中间值pwm
+double mid=800,pwm=800,par=800,pre=800;//中间值pwm
 u16 l1=550,
 	l2=600,
 	l3=700,
 	r1=850,
 	r2=910,
 	r3=1000;
-double k,k3=10,k4=15;
+double k,k3=25,k4=75;
 u16 s1=100;
 #endif
 
@@ -26,7 +27,7 @@ u16 l1=800,
 	r1=1200,
 	r2=1350,
 	r3=1500;
-u8 k1=1,k2=1,k3=1,k4=1;//分段的比例系数
+u8 k1=2,k2=1,k3=0,k4=0;//分段的比例系数
 #endif
 #ifdef HONG //红船
 u16 pwm=1030;//中间值pwm
@@ -50,6 +51,7 @@ u16 l1=700,
 u8 k1=0,k2=0,k3=0,k4=0;//分段的比例系数
 #endif
 #ifdef HAI //海鹰
+
 u16 pwm=1021;//中间值pwm
 u16 l1=1150,
 	l2=1100,
@@ -63,16 +65,17 @@ u8 k1=8,k2=6,k3=3,k4=1,d=1;
 
 
 #ifdef WU //鏃犲悕
-u16 pwm=1050;
+u16 pwm=900;
 u16 l1=750,
 	l2=850,
 	l3=950,
-	r1=1250,
-	r2=1400,
-	r3=1550;
+	r1=1100,
+	r2=1250,
+	r3=1450;
 u8 k1=1,k2=1,k3=1,k4=1;
 
 #endif
+extern u8 HW1_MARK,HW2_MARK,HW3_MARK,HW4_MARK,HW5_MARK,HW6_MARK,HW7_MARK;
 
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
@@ -80,14 +83,12 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 	NVIC_InitTypeDef NVIC_InitStructure;
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE); //时钟使能
-	
-	
 	TIM_TimeBaseStructure.TIM_Period = arr; //设置在下一个更新事件装入活动的自动重装载寄存器周期的值	 计数到5000为500ms
 	TIM_TimeBaseStructure.TIM_Prescaler =psc; //设置用来作为TIMx时钟频率除数的预分频值  10Khz的计数频率  
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0; //设置时钟分割:TDTS = Tck_tim
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIM向上计数模式
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位
-	
+
 	TIM_ITConfig(  //使能或者失能指定的TIM中断
 		TIM4, //TIM4
 		TIM_IT_Update,
@@ -108,11 +109,12 @@ void TIM4_IRQHandler(void)   //TIM3中断
 	
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) //检查指定的TIM中断发生与否:TIM 中断源 
 		{
-			control();
-	TIM_ClearFlag(TIM4, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源
-	}
+		 control();
+			TIM_ClearFlag(TIM4, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源
+		}
 }
-u16 pre;
+
+
 u8 time[11];
 void clear_timex(){
 	u8 x;
@@ -128,48 +130,40 @@ void scan(u8* time,u8 x,u8 s,double direct){
 	(*(time+x))++;
 }
 void control(void){
-	
-		if(hw_cc3&&hw_cc4&&hw_cc5){
-			scan(time,0,5,mid);
+			if((HW1_MARK||HW2_MARK||HW3_MARK)&&(HW5_MARK||HW6_MARK||HW7_MARK)&& !HW4_MARK){
+			scan(time,8,2,l1);
 		}
-		if(hw_cc1){
-			scan(time,1,5,l1);
+		if(HW4_MARK&&(HW5_MARK||HW6_MARK||HW7_MARK)){
+			scan(time,9,2,mid);
 		}
-		if(hw_cc2){
-			scan(time,2,5,l2);
-		}
-		if(hw_cc3){
-			scan(time,3,5,l3);
-		}
-		if(hw_cc4){
-			scan(time,4,5,mid);
-		}
-		if(hw_cc5){
-			scan(time,5,5,r1);
-		}
-		if(hw_cc6){
-			scan(time,6,5,r2);;
-		}
-		if(hw_cc7){
-			scan(time,7,5,r3);
-		}
-		if((hw_cc1||hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6||hw_cc7)&& !hw_cc4){
-			scan(time,8,10,l1);
-		}
-		if(hw_cc4&&(hw_cc5||hw_cc6||hw_cc7)){
-			scan(time,9,10,mid);
-		}
-	if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){
-		scan(time,10,10,mid);
+	if(HW1_MARK&&HW2_MARK&&HW3_MARK&&HW4_MARK&&HW5_MARK&&HW6_MARK&&HW7_MARK){
+		scan(time,10,2,mid);
 	}
-	
-		hw_cc1=0;
-		hw_cc2=0;
-		hw_cc3=0;
-		hw_cc4=0;
-		hw_cc5=0;
-		hw_cc6=0;
-		hw_cc7=0;
+		if(HW3_MARK&&HW4_MARK&&HW5_MARK){
+			scan(time,0,2,mid);
+		}
+		if(HW1_MARK){
+			scan(time,1,2,l1);
+		}
+		if(HW2_MARK){
+			scan(time,2,2,l2);
+		}
+		if(HW3_MARK){
+			scan(time,3,2,l3);
+		}
+		if(HW4_MARK){
+			scan(time,4,2,mid);
+		}
+		if(HW5_MARK){
+			scan(time,5,2,r1);
+		}
+		if(HW6_MARK){
+			scan(time,6,2,r2);;
+		}
+		if(HW7_MARK){
+			scan(time,7,2,r3);
+		}
+
 /*确定哪一段的比例系数*/
 
 		if(fabs(par-pwm)<=s1){
@@ -188,11 +182,9 @@ void control(void){
 			{
 			par =pwm;
 		}
-		par =(pre*6+par*4)/10;//rc滤波，变
+		par =(pre*4+par*6)/10;//rc滤波，变
 		pre = par;
-		
 		if(par<l1)par=l1;
 		if(par>r3)par =r3;
-
 	TIM_SetCompare1(TIM1,round(par));
 }
