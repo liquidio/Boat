@@ -120,8 +120,8 @@ void clear_timex(){
 		time[x] = 0;
 	}
 }
-void scan(u8* time,u8 x,double direct){
-	if(*(time+x)>=8){
+void scan(u8* time,u8 x,u8 s,double direct){
+	if(*(time+x)>=s){
 		pwm = direct;
 		clear_timex();
 	}
@@ -130,37 +130,37 @@ void scan(u8* time,u8 x,double direct){
 void control(void){
 	
 		if(hw_cc3&&hw_cc4&&hw_cc5){
-			scan(time,0,mid);
+			scan(time,0,5,mid);
 		}
 		if(hw_cc1){
-			scan(time,1,l1);
+			scan(time,1,5,l1);
 		}
 		if(hw_cc2){
-			scan(time,2,l2);
+			scan(time,2,5,l2);
 		}
 		if(hw_cc3){
-			scan(time,3,l3);
+			scan(time,3,5,l3);
 		}
 		if(hw_cc4){
-			scan(time,4,mid);
+			scan(time,4,5,mid);
 		}
 		if(hw_cc5){
-			scan(time,5,r1);
+			scan(time,5,5,r1);
 		}
 		if(hw_cc6){
-			scan(time,6,r2);;
+			scan(time,6,5,r2);;
 		}
 		if(hw_cc7){
-			scan(time,7,r3);
+			scan(time,7,5,r3);
 		}
 		if((hw_cc1||hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6||hw_cc7)&& !hw_cc4){
-			scan(time,8,l1);
+			scan(time,8,10,l1);
 		}
 		if(hw_cc4&&(hw_cc5||hw_cc6||hw_cc7)){
-			scan(time,9,mid);
+			scan(time,9,10,mid);
 		}
 	if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){
-		scan(time,10,mid);
+		scan(time,10,10,mid);
 	}
 	
 		hw_cc1=0;
