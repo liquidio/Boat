@@ -3,7 +3,7 @@
 #include "remote.h"
 #include "delay.h"
 #include <math.h>
-#define HUANG//定义使用哪艘船的参数
+#define HAI//定义使用哪艘船的参数
 
 #ifdef HUANG
 double mid=800,pwm=800,par=800;//中间值pwm
@@ -50,15 +50,16 @@ u16 l1=700,
 u8 k1=0,k2=0,k3=0,k4=0;//分段的比例系数
 #endif
 #ifdef HAI //海鹰
-u16 pwm=1021;//中间值pwm
-u16 l1=1150,
-	l2=1100,
-	l3= 1060,
-	r1=1000,
-	r2=980 ,
-	r3=900;
-u8 k1=8,k2=6,k3=3,k4=1,d=1;
 
+double mid=850,pwm=850,par=850;//中间值pwm
+u16 l1=750,
+	l2=780,
+	l3=820,
+	r1=880,
+	r2=910,
+	r3=950;
+double k,k3=10,k4=15;
+u16 s1=50;
 #endif
 
 
@@ -154,13 +155,13 @@ void control(void){
 			scan(time,7,5,r3);
 		}
 		if((hw_cc1||hw_cc2||hw_cc3)&&(hw_cc5||hw_cc6||hw_cc7)&& !hw_cc4){
-			scan(time,8,10,l1);
+			scan(time,8,6,l1);
 		}
 		if(hw_cc4&&(hw_cc5||hw_cc6||hw_cc7)){
-			scan(time,9,10,mid);
+			scan(time,9,6,mid);
 		}
 	if(hw_cc1&&hw_cc2&&hw_cc3&&hw_cc4&&hw_cc5&&hw_cc6&&hw_cc7){
-		scan(time,10,10,mid);
+		scan(time,10,6,mid);
 	}
 	
 		hw_cc1=0;
@@ -188,7 +189,7 @@ void control(void){
 			{
 			par =pwm;
 		}
-		par =(pre*6+par*4)/10;//rc滤波，变
+		par =(pre*4+par*6)/10;//rc滤波，变
 		pre = par;
 		
 		if(par<l1)par=l1;

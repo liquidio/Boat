@@ -5,7 +5,7 @@
 #include "timer.h" 
 #include "usart.h"
 #include "pwm.h"
-
+#define HAI
 #ifdef DEBUG
 	extern double pwm,par;
 	extern double k1,k2,k3,k4;
@@ -25,13 +25,13 @@
 	 TIM_SetCompare1(TIM1,800);
 	#endif
 	#ifdef BAI
-	 TIM_SetCompare1(TIM1,1000);
+	 TIM_SetCompare1(TIM1,800);
 	#endif
 	#ifdef HONG
 	 TIM_SetCompare1(TIM1,1030);
 	#endif
 	#ifdef HAI
-	 TIM_SetCompare1(TIM1,1021);
+	 TIM_SetCompare1(TIM1,950);
 	#endif
 	#ifdef PO
 	 TIM_SetCompare1(TIM1,1000);
